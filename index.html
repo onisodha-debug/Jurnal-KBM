@@ -6,7 +6,7 @@
   <title>SIM Jurnal KBM & Presensi Siswa</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f6f9; }
-    .container { max-width: 900px; margin: auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .container { max-width: 950px; margin: auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
     
     /* Navigasi Tab */
     .nav-tabs { display: flex; border-bottom: 2px solid #ccc; margin-bottom: 20px; gap: 5px; }
@@ -25,11 +25,11 @@
 
     .btn-primary { background-color: #007bff; color: white; border: none; font-weight: bold; cursor: pointer; }
     .btn-primary:hover { background-color: #0056b3; }
-    .btn-print { background-color: #28a745; color: white; border: none; font-weight: bold; cursor: pointer; width: auto; padding: 8px 16px; margin-bottom: 15px; }
+    .btn-print { background-color: #28a745; color: white; border: none; font-weight: bold; cursor: pointer; width: auto; padding: 10px 20px; margin-bottom: 15px; }
     .btn-print:hover { background-color: #218838; }
 
     table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-    table, th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    table, th, td { border: 1px solid #333; padding: 8px; text-align: left; }
     th { background-color: #f8f9fa; }
 
     .radio-group { display: flex; gap: 10px; justify-content: center; }
@@ -37,11 +37,36 @@
 
     #loading { display: none; color: #007bff; font-weight: bold; margin-bottom: 15px; }
 
+    /* Elemen khusus dokumen cetak */
+    .print-only { display: none; }
+
+    /* ==================== STYLES CETAK / PRINT ==================== */
     @media print {
-      body { background: white; margin: 0; }
-      .container { box-shadow: none; max-width: 100%; width: 100%; padding: 0; }
-      .nav-tabs, .btn-print, button, #loading, .filter-section { display: none !important; }
-      .tab-content { display: block !important; }
+      body { background: white; margin: 0; padding: 0; font-size: 12pt; }
+      .container { box-shadow: none; max-width: 100%; width: 100%; padding: 0; margin: 0; }
+      
+      /* Sembunyikan elemen non-cetak */
+      .nav-tabs, .btn-print, button, #loading, .filter-section, #input-jurnal, h2 { display: none !important; }
+      
+      /* Tampilkan hanya tab rekap yang aktif */
+      .tab-content { display: none !important; }
+      .tab-content.active { display: block !important; }
+
+      /* Kop Laporan Cetak */
+      .print-only { display: block !important; }
+      .kop-header { text-align: center; border-bottom: 3px double #000; padding-bottom: 10px; margin-bottom: 20px; }
+      .kop-header h3 { margin: 0; font-size: 16pt; text-transform: uppercase; }
+      .kop-header p { margin: 2px 0; font-size: 10pt; }
+
+      /* Tabel Cetak */
+      table { width: 100% !important; border-collapse: collapse !important; margin-top: 10px; }
+      th, td { border: 1px solid #000 !important; padding: 6px 8px !important; font-size: 10pt; }
+      th { background-color: #eee !important; text-align: center; }
+
+      /* Tanda Tangan */
+      .ttd-container { display: flex; justify-content: space-between; margin-top: 40px; page-break-inside: avoid; }
+      .ttd-box { text-align: center; width: 40%; }
+      .ttd-space { height: 60px; }
     }
   </style>
 </head>
@@ -93,7 +118,6 @@
         </div>
       </div>
 
-      <!-- Dropdown Terpisah: Materi Pokok & Sub-Topik -->
       <div class="grid-2">
         <div class="form-group">
           <label>Materi Pokok / Bab:</label>
@@ -143,8 +167,29 @@
       <button class="btn-primary" onclick="loadRekapSiswa()">Tampilkan Rekap Siswa</button>
     </div>
     <hr style="margin: 20px 0;">
-    <button class="btn-print" onclick="window.print()">🖨️ Cetak / Print Rekap Siswa</button>
-    <div id="tabelRekapSiswaArea"></div>
+    
+    <button class="btn-print" onclick="cetakLaporan('rekap-siswa')">🖨️ Cetak / Simpan PDF Rekap Siswa</button>
+    
+    <!-- Area Hasil Cetak Rekap Siswa -->
+    <div id="cetakAreaSiswa">
+      <div class="print-only kop-header">
+        <h3>Laporan Rekapitulasi Presensi Siswa</h3>
+        <p id="subKopSiswa">Periode Laporan</p>
+      </div>
+      <div id="tabelRekapSiswaArea"></div>
+      <div class="print-only ttd-container">
+        <div class="ttd-box">
+          <p>Mengetahui,<br>Kepala Sekolah / Pengawas</p>
+          <div class="ttd-space"></div>
+          <p><b>_______________________</b></p>
+        </div>
+        <div class="ttd-box">
+          <p>Wali Kelas / Petugas</p>
+          <div class="ttd-space"></div>
+          <p><b>_______________________</b></p>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Tab 3: Rekap Jurnal Guru -->
@@ -167,8 +212,29 @@
       <button class="btn-primary" onclick="loadRekapGuru()">Tampilkan Rekap Guru</button>
     </div>
     <hr style="margin: 20px 0;">
-    <button class="btn-print" onclick="window.print()">🖨️ Cetak / Print Rekap Guru</button>
-    <div id="tabelRekapGuruArea"></div>
+    
+    <button class="btn-print" onclick="cetakLaporan('rekap-guru')">🖨️ Cetak / Simpan PDF Jurnal Guru</button>
+    
+    <!-- Area Hasil Cetak Rekap Guru -->
+    <div id="cetakAreaGuru">
+      <div class="print-only kop-header">
+        <h3>Laporan Jurnal Pelaksanaan KBM Guru</h3>
+        <p id="subKopGuru">Periode Laporan</p>
+      </div>
+      <div id="tabelRekapGuruArea"></div>
+      <div class="print-only ttd-container">
+        <div class="ttd-box">
+          <p>Mengetahui,<br>Pengawas Sekolah / Kepala Sekolah</p>
+          <div class="ttd-space"></div>
+          <p><b>_______________________</b></p>
+        </div>
+        <div class="ttd-box">
+          <p>Guru Pengajar</p>
+          <div class="ttd-space"></div>
+          <p><b>_______________________</b></p>
+        </div>
+      </div>
+    </div>
   </div>
 
 </div>
@@ -260,8 +326,6 @@
 
     if (mapelId) {
       const selectedMapelClean = mapelId.toUpperCase().trim();
-      
-      // Ambil daftar materi pokok unik untuk Mapel ini
       const filtered = masterMateris.filter(m => 
         m.rawIdMapel === selectedMapelClean || 
         m.rawIdMapel.startsWith(selectedMapelClean) ||
@@ -282,7 +346,6 @@
       }
     }
 
-    // Render Tabel Presensi Siswa
     const areaPresensi = document.getElementById('areaPresensi');
     if (!kelasId) {
       areaPresensi.innerHTML = '<p style="color:#6c757d;">Silakan pilih <b>Kelas</b> pada formulir di atas untuk menampilkan daftar siswa.</p>';
@@ -324,7 +387,6 @@
 
     if (selectedPokok && mapelId) {
       const selectedMapelClean = mapelId.toUpperCase().trim();
-      
       const filteredSubs = masterMateris.filter(m => {
         const isMapelMatch = m.rawIdMapel === selectedMapelClean || 
                              m.rawIdMapel.startsWith(selectedMapelClean) ||
@@ -362,11 +424,15 @@
   }
 
   function loadRekapSiswa() {
-    const kelasId = document.getElementById('rekapKelasSiswa').value;
+    const kelasSelect = document.getElementById('rekapKelasSiswa');
+    const kelasId = kelasSelect.value;
+    const kelasTeks = kelasSelect.options[kelasSelect.selectedIndex].text;
     const tglAwal = document.getElementById('tglAwalSiswa').value;
     const tglAkhir = document.getElementById('tglAkhirSiswa').value;
 
     if (!kelasId) return alert("Pilih kelas terlebih dahulu!");
+
+    document.getElementById('subKopSiswa').innerText = `Kelas: ${kelasTeks} | Periode: ${tglAwal} s/d ${tglAkhir}`;
 
     showLoading(true);
     fetch(`${API_URL}?action=getRekapSiswa&kelasId=${kelasId}&tglAwal=${tglAwal}&tglAkhir=${tglAkhir}`)
@@ -374,9 +440,9 @@
       .then(res => {
         showLoading(false);
         if (res.status === 'success') {
-          let html = `<table><thead><tr><th>NIS</th><th>Nama Siswa</th><th>Hadir (H)</th><th>Izin (I)</th><th>Sakit (S)</th><th>Alfa (A)</th></tr></thead><tbody>`;
-          res.detailSiswa.forEach(s => {
-            html += `<tr><td>${s.nis}</td><td>${s.nama}</td><td>${s.h}</td><td>${s.i}</td><td>${s.s}</td><td>${s.a}</td></tr>`;
+          let html = `<table><thead><tr><th>No</th><th>NIS</th><th>Nama Siswa</th><th style="text-align:center;">Hadir (H)</th><th style="text-align:center;">Izin (I)</th><th style="text-align:center;">Sakit (S)</th><th style="text-align:center;">Alfa (A)</th></tr></thead><tbody>`;
+          res.detailSiswa.forEach((s, idx) => {
+            html += `<tr><td style="text-align:center;">${idx + 1}</td><td>${s.nis}</td><td>${s.nama}</td><td style="text-align:center;">${s.h}</td><td style="text-align:center;">${s.i}</td><td style="text-align:center;">${s.s}</td><td style="text-align:center;">${s.a}</td></tr>`;
           });
           html += `</tbody></table>`;
           document.getElementById('tabelRekapSiswaArea').innerHTML = html;
@@ -385,11 +451,15 @@
   }
 
   function loadRekapGuru() {
-    const nip = document.getElementById('rekapGuruSelect').value;
+    const guruSelect = document.getElementById('rekapGuruSelect');
+    const nip = guruSelect.value;
+    const guruTeks = guruSelect.options[guruSelect.selectedIndex].text;
     const tglAwal = document.getElementById('tglAwalGuru').value;
     const tglAkhir = document.getElementById('tglAkhirGuru').value;
 
     if (!nip) return alert("Pilih guru terlebih dahulu!");
+
+    document.getElementById('subKopGuru').innerText = `Nama Guru: ${guruTeks} | Periode: ${tglAwal} s/d ${tglAkhir}`;
 
     showLoading(true);
     fetch(`${API_URL}?action=getRekapGuru&nip=${nip}&tglAwal=${tglAwal}&tglAkhir=${tglAkhir}`)
@@ -397,15 +467,21 @@
       .then(res => {
         showLoading(false);
         if (res.status === 'success') {
-          let html = `<p><b>Total Sesi Mengajar:</b> ${res.statistik.totalSesi} | <b>Total Jam Pelajaran (JP):</b> ${res.statistik.totalJP}</p>`;
-          html += `<table><thead><tr><th>Tanggal</th><th>Kelas</th><th>Mapel</th><th>Jam Ke</th><th>Materi</th><th>Catatan</th></tr></thead><tbody>`;
-          res.jurnal.forEach(j => {
-            html += `<tr><td>${j.tanggal}</td><td>${j.kelas}</td><td>${j.mapel}</td><td>${j.jamKe}</td><td>${j.materi}</td><td>${j.catatan}</td></tr>`;
+          let html = `<p><b>Total Sesi Mengajar:</b> ${res.statistik.totalSesi} KBM | <b>Total Jam Pelajaran:</b> ${res.statistik.totalJP} JP</p>`;
+          html += `<table><thead><tr><th>No</th><th>Tanggal</th><th>Kelas</th><th>Mapel</th><th>Jam Ke</th><th>Materi & Sub-Topik</th><th>Catatan KBM</th></tr></thead><tbody>`;
+          res.jurnal.forEach((j, idx) => {
+            html += `<tr><td style="text-align:center;">${idx + 1}</td><td>${j.tanggal}</td><td>${j.kelas}</td><td>${j.mapel}</td><td>${j.jamKe}</td><td>${j.materi}</td><td>${j.catatan || '-'}</td></tr>`;
           });
           html += `</tbody></table>`;
           document.getElementById('tabelRekapGuruArea').innerHTML = html;
         }
       });
+  }
+
+  function cetakLaporan(tabId) {
+    // Pastikan tab laporan yang akan dicetak dibuka terlebih dahulu
+    openTab(tabId);
+    window.print();
   }
 
   document.getElementById("jurnalForm").addEventListener("submit", function(e) {
@@ -427,10 +503,10 @@
     const materiPokokVal = document.getElementById("materiPokok").value;
     const subTopikVal = document.getElementById("subTopik").value;
     
-    // Gabungkan Materi Pokok + Sub-Topik untuk disimpan ke Spreadsheet
     let gabunganMateri = materiPokokVal;
     if (subTopikVal && subTopikVal !== '-') {
-      gabunganMateri = `${materiPokokVal} - ${subTopikVal}`;
+      replaceMateri = `${materiPokokVal} - ${subTopikVal}`;
+      gabunganMateri = replaceMateri;
     }
 
     const payload = {
