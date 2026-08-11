@@ -195,13 +195,28 @@
       .then(res => {
         showLoading(false);
         if (res.status === 'success') {
-          // Normalisasi data materi untuk mencegah label undefined
-          masterMateris = (res.data.materis || []).map(m => ({
-            id: m.id || m[0],
-            mapelId: m.mapelId || m[1],
-            kelasId: m.kelasId || m[2],
-            nama: m.nama || m.materi || m[3] || 'Materi Tanpa Judul'
-          }));
+          // Parsing adaptif sesuai header sheet Data_Materi
+          masterMateris = (res.data.materis || []).map(m => {
+            let idMapel = String(m.idMapel || m.ID_Mapel || m.mapelId || m[0] || '');
+            let pokok = m.materiPokok || m.Materi_Pokok || m[1] || '';
+            let sub = m.subTopik || m.Sub_Topik || m[2] || '';
+
+            let namaTeks = pokok;
+            if (pokok && sub) {
+              namaTeks = `${pokok} - ${sub}`;
+            } else if (sub) {
+              namaTeks = sub;
+            } else if (m.nama || m.materi) {
+              namaTeks = m.nama || m.materi;
+            }
+
+            return {
+              rawIdMapel: idMapel,
+              mapelId: m.mapelId || idMapel.split('-')[0] || '',
+              kelasId: m.kelasId || idMapel.split('-')[1] || '',
+              nama: namaTeks || 'Materi Tanpa Judul'
+            };
+          });
 
           masterSiswas = res.data.siswas || [];
 
@@ -237,19 +252,26 @@
     const kelasId = document.getElementById('kelas').value;
     const mapelId = document.getElementById('mapel').value;
 
+    // Ambil digit angka kelas (contoh: "Kelas 8-A" atau "K8A" -> "8")
+    const angkaKelas = kelasId.match(/\d+/)?.[0] || kelasId;
+
     // 1. Cascading Dropdown Materi
     const selectMateri = document.getElementById('materi');
     selectMateri.innerHTML = '<option value="">-- Pilih Materi --</option>';
 
     if (kelasId && mapelId) {
-      const filteredMateri = masterMateris.filter(m => 
-        String(m.kelasId) === String(kelasId) && String(m.mapelId) === String(mapelId)
-      );
+      const filteredMateri = masterMateris.filter(m => {
+        const matchIDMapel = m.rawIdMapel.toUpperCase().includes(mapelId.toUpperCase()) && 
+                             m.rawIdMapel.includes(angkaKelas);
+        const matchDirect = (String(m.mapelId) === String(mapelId)) && 
+                            (String(m.kelasId) === String(kelasId) || String(m.kelasId) === String(angkaKelas));
+        return matchIDMapel || matchDirect;
+      });
 
       if (filteredMateri.length > 0) {
         filteredMateri.forEach(m => {
           const opt = document.createElement('option');
-          opt.value = m.id;
+          opt.value = m.nama;
           opt.textContent = m.nama;
           selectMateri.appendChild(opt);
         });
