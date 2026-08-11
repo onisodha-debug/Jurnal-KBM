@@ -94,7 +94,7 @@
       </div>
 
       <div class="form-group">
-        <label>Materi / Sub-Topik (Cascading Dropdown):</label>
+        <label>Materi / Sub-Topik:</label>
         <select id="materi" required><option value="">-- Pilih Kelas & Mapel Terlebih Dahulu --</option></select>
       </div>
 
@@ -105,7 +105,7 @@
 
       <div class="section-title">2. Presensi Siswa</div>
       <div id="areaPresensi">
-        <p style="color: #6c757d; italic;">Silakan pilih <b>Kelas</b> pada formulir di atas untuk menampilkan daftar siswa.</p>
+        <p style="color: #6c757d;">Silakan pilih <b>Kelas</b> pada formulir di atas untuk menampilkan daftar siswa.</p>
       </div>
 
       <button type="submit" class="btn-primary" style="margin-top: 20px;">Simpan Jurnal & Presensi</button>
@@ -195,8 +195,15 @@
       .then(res => {
         showLoading(false);
         if (res.status === 'success') {
-          masterMateris = res.data.materis;
-          masterSiswas = res.data.siswas;
+          // Normalisasi data materi untuk mencegah label undefined
+          masterMateris = (res.data.materis || []).map(m => ({
+            id: m.id || m[0],
+            mapelId: m.mapelId || m[1],
+            kelasId: m.kelasId || m[2],
+            nama: m.nama || m.materi || m[3] || 'Materi Tanpa Judul'
+          }));
+
+          masterSiswas = res.data.siswas || [];
 
           populateDropdown('guru', res.data.gurus, 'nip', 'nama');
           populateDropdown('rekapGuruSelect', res.data.gurus, 'nip', 'nama');
@@ -216,12 +223,14 @@
   function populateDropdown(elemId, data, valKey, textKey) {
     const select = document.getElementById(elemId);
     select.innerHTML = `<option value="">-- Pilih ${elemId.toUpperCase()} --</option>`;
-    data.forEach(item => {
-      const opt = document.createElement('option');
-      opt.value = item[valKey];
-      opt.textContent = item[textKey];
-      select.appendChild(opt);
-    });
+    if (data && data.length > 0) {
+      data.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item[valKey];
+        opt.textContent = item[textKey];
+        select.appendChild(opt);
+      });
+    }
   }
 
   function onKelasOrMapelChange() {
@@ -236,12 +245,17 @@
       const filteredMateri = masterMateris.filter(m => 
         String(m.kelasId) === String(kelasId) && String(m.mapelId) === String(mapelId)
       );
-      filteredMateri.forEach(m => {
-        const opt = document.createElement('option');
-        opt.value = m.id;
-        opt.textContent = m.nama;
-        selectMateri.appendChild(opt);
-      });
+
+      if (filteredMateri.length > 0) {
+        filteredMateri.forEach(m => {
+          const opt = document.createElement('option');
+          opt.value = m.id;
+          opt.textContent = m.nama;
+          selectMateri.appendChild(opt);
+        });
+      } else {
+        selectMateri.innerHTML = '<option value="">-- Tidak Ada Materi untuk Kelas & Mapel Ini --</option>';
+      }
     }
 
     // 2. Render Tabel Presensi Siswa
