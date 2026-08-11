@@ -1,1 +1,142 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIM Jurnal KBM & Presensi Siswa</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f6f9; }
+    .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    h2 { color: #333; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; font-weight: bold; }
+    select, input, textarea, button { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+    button { background-color: #007bff; color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; }
+    button:hover { background-color: #0056b3; }
+    #loading { display: none; color: #007bff; font-weight: bold; margin-bottom: 15px; }
+  </style>
+</head>
+<body>
 
+<div class="container">
+  <h2>SIM Jurnal KBM & Presensi Siswa</h2>
+  <div id="loading">Memuat data dari server...</div>
+
+  <form id="jurnalForm">
+    <div class="form-group">
+      <label>Tanggal:</label>
+      <input type="date" id="tanggal" required>
+    </div>
+
+    <div class="form-group">
+      <label>Guru Pengajar:</label>
+      <select id="guru" required><option value="">-- Pilih Guru --</option></select>
+    </div>
+
+    <div class="form-group">
+      <label>Kelas:</label>
+      <select id="kelas" required><option value="">-- Pilih Kelas --</option></select>
+    </div>
+
+    <div class="form-group">
+      <label>Mata Pelajaran:</label>
+      <select id="mapel" required><option value="">-- Pilih Mapel --</option></select>
+    </div>
+
+    <div class="form-group">
+      <label>Materi / Sub-Topik:</label>
+      <select id="materi" required><option value="">-- Pilih Materi --</option></select>
+    </div>
+
+    <div class="form-group">
+      <label>Catatan KBM / Kendala:</label>
+      <textarea id="catatan" rows="3" placeholder="Catatan jalannya KBM..."></textarea>
+    </div>
+
+    <button type="submit">Simpan Jurnal</button>
+  </form>
+</div>
+
+<script>
+  // TEMPELKAN URL DEPLOY APPS SCRIPT KAMU DI SINI:
+  const API_URL = "https://script.google.com/macros/s/AKfycbx.../exec";
+
+  document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("tanggal").valueAsDate = new Date();
+    loadInitialData();
+  });
+
+  function showLoading(show) {
+    document.getElementById("loading").style.display = show ? "block" : "none";
+  }
+
+  function loadInitialData() {
+    showLoading(true);
+    fetch(`${API_URL}?action=getInitialData`)
+      .then(res => res.json())
+      .then(res => {
+        showLoading(false);
+        if (res.status === 'success') {
+          populateDropdown('guru', res.data.gurus, 'nip', 'nama');
+          populateDropdown('kelas', res.data.kelases, 'id', 'nama');
+          populateDropdown('mapel', res.data.mapels, 'id', 'nama');
+          populateDropdown('materi', res.data.materis, 'id', 'nama');
+        } else {
+          alert("Gagal memuat data: " + res.message);
+        }
+      })
+      .catch(err => {
+        showLoading(false);
+        alert("Error koneksi API: " + err);
+      });
+  }
+
+  function populateDropdown(elemId, data, valKey, textKey) {
+    const select = document.getElementById(elemId);
+    data.forEach(item => {
+      const opt = document.createElement('option');
+      opt.value = item[valKey];
+      opt.textContent = item[textKey];
+      select.appendChild(opt);
+    });
+  }
+
+  document.getElementById("jurnalForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    showLoading(true);
+
+    const payload = {
+      tanggal: document.getElementById("tanggal").value,
+      nip: document.getElementById("guru").value,
+      kelasId: document.getElementById("kelas").value,
+      mapelId: document.getElementById("mapel").value,
+      materiId: document.getElementById("materi").value,
+      catatan: document.getElementById("catatan").value,
+      jamKe: "1-2",
+      totalJP: 2,
+      presensi: []
+    };
+
+    fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(res => {
+      showLoading(false);
+      if (res.status === 'success') {
+        alert("Data Jurnal Berhasil Disimpan!");
+        document.getElementById("jurnalForm").reset();
+      } else {
+        alert("Gagal menyimpan: " + res.message);
+      }
+    })
+    .catch(err => {
+      showLoading(false);
+      alert("Error: " + err);
+    });
+  });
+</script>
+
+</body>
+</html>
