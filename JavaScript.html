@@ -1,0 +1,473 @@
+<script>
+// Global State Data
+let rawData = { gurus: [], kelases: [], mapels: [], materis: [], siswas: [] };
+
+// Inisialisasi Saat Halaman Dimuat
+document.addEventListener('DOMContentLoaded', function() {
+  // Set default tanggal hari ini pada input
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('kbmTanggal').value = today;
+  document.getElementById('rekapSiswaTglAwal').value = today;
+  document.getElementById('rekapSiswaTglAkhir').value = today;
+  document.getElementById('rekapGuruTglAwal').value = today;
+  document.getElementById('rekapGuruTglAkhir').value = today;
+
+  // Muat data awal dari Google Apps Script Backend
+  muatDataAwal();
+});
+
+function muatDataAwal() {
+  google.script.run.withSuccessHandler(res => {
+    if (res && res.status === 'success') {
+      rawData = res.data;
+      populasiDropdowns();
+    } else {
+      alert('Gagal memuat data awal dari Google Drive/Spreadsheet.');
+    }
+  }).getInitialData();
+}
+
+// Populasikan Dropdown Utama
+function populasiDropdowns() {
+  const selGuru = document.getElementById('kbmGuru');
+  const selGuruRekap = document.getElementById('rekapGuruNip');
+  const selKelas = document.getElementById('kbmKelas');
+  const selKelasRekap = document.getElementById('rekapSiswaKelas');
+
+  selGuru.innerHTML = '<option value="">-- Pilih Guru --</option>';
+  selGuruRekap.innerHTML = '<option value="">-- Pilih Guru --</option>';
+  rawData.gurus.forEach(g => {
+    selGuru.add(new Option(g.nama, g.nip));
+    selGuruRekap.add(new Option(g.nama, g.nip));
+  });
+
+  selKelas.innerHTML = '<option value="">-- Pilih Kelas --</option>';
+  selKelasRekap.innerHTML = '<option value="">-- Pilih Kelas --</option>';
+  rawData.kelases.forEach(k => {
+    selKelas.add(new Option(k.nama, k.id));
+    selKelasRekap.add(new Option(k.nama, k.id));
+  });
+}
+
+// Handler Perubahan Dropdown Guru & Kelas
+function onGuruChanged() {
+  const nip = document.getElementById('kbmGuru').value;
+  const selMapel = document.getElementById('kbmMapel');
+  selMapel.innerHTML = '<option value="">-- Pilih Mapel --</option>';
+
+  if (nip) {
+    // Tampilkan mapel terkait guru tersebut jika ada, atau tampilkan semua
+    rawData.mapels.forEach(m => selMapel.add(new Option(m.nama, m.id)));
+  }
+}
+
+function onKelasChanged() {
+  const kelasId = document.getElementById('kbmKelas').value;
+  const tbody = document.getElementById('tbodyPresensiSiswa');
+  tbody.innerHTML = '';
+
+  if (!kelasId) {
+    tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Pilih kelas terlebih dahulu.</td></tr>';
+    return;
+  }
+
+  const siswasInKelas = rawData.siswas.filter(s => s.kelasId === kelasId);
+  if (siswasInKelas.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Tidak ada data siswa di kelas ini.</td></tr>';
+    return;
+  }
+
+  siswasInKelas.forEach((s, idx) => {
+    tbody.innerHTML += `
+      <tr>
+        <td>${idx + 1}</td>
+        <td>${s.nis}</td>
+        <td>${s.nama}</td>
+        <td class="text-center">
+          <div class="btn-group btn-group-sm" role="group">
+            <input type="radio" class="btn-check" name="presensi_${s.nis}" id="h_${s.nis}" value="H" checked>
+            <label class="btn btn-outline-success" for="h_${s.nis}">Hadir</label>
+
+            <input type="radio" class="btn-check" name="presensi_${s.nis}" id="i_${s.nis}" value="I">
+            <label class="btn btn-outline-info" for="i_${s.nis}">Izin</label>
+
+            <input type="radio" class="btn-check" name="presensi_${s.nis}" id="s_${s.nis}" value="S">
+            <label class="btn btn-outline-warning" for="s_${s.nis}">Sakit</label>
+
+            <input type="radio" class="btn-check" name="presensi_${s.nis}" id="a_${s.nis}" value="A">
+            <label class="btn btn-outline-danger" for="a_${s.nis}">Alpa</label>
+          </div>
+        </td>
+      </tr>
+    `;
+  });
+
+  onMapelChanged();
+}
+
+// Cascading Dropdown Materi berdasarkan Mapel & Kelas
+function onMapelChanged() {
+  const mapelId = document.getElementById('kbmMapel').value;
+  const kelasId = document.getElementById('kbmKelas').value;
+  const selMateri = document.getElementById('kbmMateri');
+  selMateri.innerHTML = '<option value="">-- Pilih Materi --</option>';
+
+  if (mapelId && kelasId) {
+    const listMateri = rawData.materis.filter(m => m.mapelId === mapelId && m.kelasId === kelasId);
+    listMateri.forEach(m => selMateri.add(new Option(m.nama, m.id)));
+  }
+}
+
+// Kalkulasi Otomatis JP dari String Jam Ke (misal: "1-3" -> 3 JP)
+function kalkulasiJP() {
+  const val = document.getElementById('kbmJamKe').value.trim();
+  const inputJP = document.getElementById('kbmTotalJP');
+  
+  if (!val) { inputJP.value = ''; return; }
+  
+  const match = val.match(/(\d+)\s*[-–—]\s*(\d+)/);
+  if (match) {
+    const awal = parseInt(match[1]);
+    const akhir = parseInt(match[2]);
+    if (akhir >= awal) {
+      inputJP.value = (akhir - awal + 1);
+      return;
+    }
+  }
+  
+  const single = parseInt(val);
+  if (!isNaN(single)) inputJP.value = 1;
+  else inputJP.value = '';
+}
+
+// Simpan Form KBM & Presensi
+function simpanDataKBM(e) {
+  e.preventDefault();
+  
+  const kelasId = document.getElementById('kbmKelas').value;
+  const siswasInKelas = rawData.siswas.filter(s => s.kelasId === kelasId);
+  const presensiData = [];
+
+  siswasInKelas.forEach(s => {
+    const statusEl = document.querySelector(`input[name="presensi_${s.nis}"]:checked`);
+    presensiData.push({
+      nis: s.nis,
+      nama: s.nama,
+      status: statusEl ? statusEl.value : 'H'
+    });
+  });
+
+  const payload = {
+    tanggal: document.getElementById('kbmTanggal').value,
+    nip: document.getElementById('kbmGuru').value,
+    kelasId: kelasId,
+    mapelId: document.getElementById('kbmMapel').value,
+    jamKe: document.getElementById('kbmJamKe').value,
+    totalJP: document.getElementById('kbmTotalJP').value,
+    materiId: document.getElementById('kbmMateri').value,
+    catatan: document.getElementById('kbmCatatan').value,
+    presensi: presensiData
+  };
+
+  google.script.run.withSuccessHandler(res => {
+    if (res && res.status === 'success') {
+      alert('Data Jurnal KBM & Presensi berhasil disimpan!');
+      document.getElementById('formKBM').reset();
+      document.getElementById('tbodyPresensiSiswa').innerHTML = '<tr><td colspan="4" class="text-center text-muted">Pilih kelas terlebih dahulu.</td></tr>';
+    } else {
+      alert('Gagal menyimpan data: ' + (res ? res.message : 'Error Server'));
+    }
+  }).simpanJurnalAndPresensi(payload);
+}
+
+// Muat Rekap Presensi Siswa
+function muatRekapSiswa() {
+  const kelasId = document.getElementById('rekapSiswaKelas').value;
+  const tglAwal = document.getElementById('rekapSiswaTglAwal').value;
+  const tglAkhir = document.getElementById('rekapSiswaTglAkhir').value;
+  const tbody = document.getElementById('tbodyRekapSiswa');
+
+  if (!kelasId) return;
+
+  tbody.innerHTML = '<tr><td colspan="7" class="text-center">Memuat data rekap...</td></tr>';
+
+  google.script.run.withSuccessHandler(res => {
+    if (res && res.status === 'success') {
+      tbody.innerHTML = '';
+      if (!res.detailSiswa || res.detailSiswa.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Tidak ada data presensi pada rentang tanggal ini.</td></tr>';
+        return;
+      }
+
+      res.detailSiswa.forEach((s, idx) => {
+        tbody.innerHTML += `
+          <tr>
+            <td class="text-center">${idx + 1}</td>
+            <td class="text-center">${s.nis}</td>
+            <td>${s.nama}</td>
+            <td class="text-center text-success fw-bold">${s.h}</td>
+            <td class="text-center text-info fw-bold">${s.i}</td>
+            <td class="text-center text-warning fw-bold">${s.s}</td>
+            <td class="text-center text-danger fw-bold">${s.a}</td>
+          </tr>
+        `;
+      });
+    }
+  }).getRekapSiswa(kelasId, 'mingguan', tglAwal, tglAkhir, '1', '2026', '1');
+}
+
+// Muat Rekap Jurnal Guru
+function muatRekapGuru() {
+  const nip = document.getElementById('rekapGuruNip').value;
+  const tglAwal = document.getElementById('rekapGuruTglAwal').value;
+  const tglAkhir = document.getElementById('rekapGuruTglAkhir').value;
+  const tbody = document.getElementById('tbodyRekapGuru');
+  const badge = document.getElementById('statGuruBadge');
+
+  if (!nip) return;
+
+  tbody.innerHTML = '<tr><td colspan="7" class="text-center">Memuat data KBM guru...</td></tr>';
+
+  google.script.run.withSuccessHandler(res => {
+    if (res && res.status === 'success') {
+      tbody.innerHTML = '';
+      badge.innerText = `Total: ${res.statistik ? res.statistik.totalSesi : 0} Sesi | ${res.statistik ? res.statistik.totalJP : 0} JP`;
+
+      if (!res.jurnal || res.jurnal.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Tidak ada data kegiatan mengajar pada rentang tanggal ini.</td></tr>';
+        return;
+      }
+
+      res.jurnal.forEach((j, idx) => {
+        tbody.innerHTML += `
+          <tr>
+            <td class="text-center">${idx + 1}</td>
+            <td class="text-center">${j.tanggal}</td>
+            <td class="text-center">${j.kelas}</td>
+            <td>${j.mapel}</td>
+            <td class="text-center">${j.jamKe}</td>
+            <td>${j.materi}</td>
+            <td>${j.catatan || '-'}</td>
+          </tr>
+        `;
+      });
+    }
+  }).getRekapGuru(nip, 'mingguan', tglAwal, tglAkhir, '1', '2026', '1');
+}
+
+// =================================================== //
+// LOGIKA MODAL CETAK & PENJANAAN PDF                  //
+// =================================================== //
+
+function bukaModalCetak() {
+  const tglNow = new Date();
+  const options = { day: 'numeric', month: 'long', year: 'numeric' };
+  document.getElementById('cetakLokasiTgl').value = 'Blitar, ' + tglNow.toLocaleDateString('id-ID', options);
+
+  setPresetTanggal('bulan');
+  populasiSiswaCetak();
+
+  const modalElement = document.getElementById('modalCetak');
+  const modal = new bootstrap.Modal(modalElement);
+  modal.show();
+}
+
+function setPresetTanggal(jenis) {
+  const now = new Date();
+  let tglAwal, tglAkhir;
+
+  if (jenis === 'bulan') {
+    tglAwal = new Date(now.getFullYear(), now.getMonth(), 1);
+    tglAkhir = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  } else if (jenis === '3bulan') {
+    tglAwal = new Date(now.getFullYear(), now.getMonth() - 2, 1);
+    tglAkhir = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  } else if (jenis === 'semester') {
+    const m = now.getMonth() + 1;
+    if (m >= 7) {
+      tglAwal = new Date(now.getFullYear(), 6, 1);    // 1 Juli
+      tglAkhir = new Date(now.getFullYear(), 11, 31); // 31 Desember
+    } else {
+      tglAwal = new Date(now.getFullYear(), 0, 1);    // 1 Januari
+      tglAkhir = new Date(now.getFullYear(), 5, 30);   // 30 Juni
+    }
+  }
+
+  const formatDate = (date) => {
+    const d = new Date(date);
+    let month = '' + (d.getMonth() + 1);
+    let day = '' + d.getDate();
+    const year = d.getFullYear();
+
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+
+    return [year, month, day].join('-');
+  };
+
+  document.getElementById('cetakTglAwal').value = formatDate(tglAwal);
+  document.getElementById('cetakTglAkhir').value = formatDate(tglAkhir);
+}
+
+function onJenisCetakChanged() {
+  const jenis = document.getElementById('cetakJenis').value;
+  const wrapper = document.getElementById('wrapperPilihSiswa');
+  if (jenis === 'presensi_siswa') wrapper.classList.remove('d-none');
+  else wrapper.classList.add('d-none');
+}
+
+function populasiSiswaCetak() {
+  const kelasEl = document.getElementById('rekapSiswaKelas');
+  const selSiswa = document.getElementById('cetakSelectSiswa');
+  selSiswa.innerHTML = '<option value="">-- Pilih Siswa --</option>';
+
+  if (kelasEl && kelasEl.value && rawData.siswas) {
+    const listSiswa = rawData.siswas.filter(s => s.kelasId === kelasEl.value);
+    listSiswa.forEach(s => selSiswa.add(new Option(s.nama, s.nis)));
+  }
+}
+
+function prosesCetakPDF() {
+  const jenis = document.getElementById('cetakJenis').value;
+  const tglAwal = document.getElementById('cetakTglAwal').value;
+  const tglAkhir = document.getElementById('cetakTglAkhir').value;
+  const titimangsa = document.getElementById('cetakLokasiTgl').value;
+  const printContainer = document.getElementById('printArea');
+
+  const formatTglIndo = (str) => {
+    if (!str) return '-';
+    const p = str.split('-');
+    if (p.length !== 3) return str;
+    return `${p[2]}/${p[1]}/${p[0]}`;
+  };
+
+  if (jenis === 'jurnal_guru') {
+    const nip = document.getElementById('rekapGuruNip').value;
+    if (!nip) { alert('Silakan pilih guru terlebih dahulu di tab Rekap Guru!'); return; }
+
+    google.script.run.withSuccessHandler(res => {
+      if (res && res.status === 'success') {
+        const guruObj = rawData.gurus.find(g => g.nip === nip);
+        let rows = '';
+        
+        (res.jurnal || []).forEach((j, idx) => {
+          rows += `<tr>
+            <td style="text-align:center;">${idx + 1}</td>
+            <td style="text-align:center;">${j.tanggal}</td>
+            <td style="text-align:center;">${j.kelas}</td>
+            <td>${j.mapel}</td>
+            <td style="text-align:center;">${j.jamKe}</td>
+            <td>${j.materi}</td>
+            <td>${j.catatan || '-'}</td>
+          </tr>`;
+        });
+
+        printContainer.innerHTML = `
+          <div class="kop-surat">
+            <h5>LAPORAN JURNAL & KEGIATAN BELAJAR MENGAJAR</h5>
+            <p>Periode: <strong>${formatTglIndo(tglAwal)}</strong> s.d. <strong>${formatTglIndo(tglAkhir)}</strong> | Nama Guru: <strong>${guruObj ? guruObj.nama : nip}</strong></p>
+          </div>
+          <p style="font-size: 10pt; margin-bottom: 8px;">
+            <strong>Total Sesi KBM:</strong> ${res.statistik ? res.statistik.totalSesi : 0} Sesi &nbsp;|&nbsp; 
+            <strong>Total Jam Mengajar:</strong> ${res.statistik ? res.statistik.totalJP : 0} JP
+          </p>
+          <table class="table-print">
+            <thead>
+              <tr>
+                <th style="width: 5%;">No</th>
+                <th style="width: 12%;">Tanggal</th>
+                <th style="width: 10%;">Kelas</th>
+                <th style="width: 18%;">Mata Pelajaran</th>
+                <th style="width: 10%;">Jam Ke</th>
+                <th style="width: 30%;">Materi & Sub-Topik</th>
+                <th style="width: 15%;">Catatan</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows || '<tr><td colspan="7" style="text-align:center;">Tidak ada data KBM pada periode ini.</td></tr>'}
+            </tbody>
+          </table>
+          <div class="ttd-box">
+            <div class="ttd-col">
+              <p>Mengetahui,<br>Kepala Sekolah</p>
+              <br><br><br>
+              <p>(____________________)<br>NIP. </p>
+            </div>
+            <div class="ttd-col">
+              <p>${titimangsa}<br>Guru Pengajar</p>
+              <br><br><br>
+              <p><strong>${guruObj ? guruObj.nama : ''}</strong><br>NIP. ${nip}</p>
+            </div>
+          </div>
+        `;
+
+        window.print();
+      }
+    }).getRekapGuru(nip, 'mingguan', tglAwal, tglAkhir, '1', '2026', '1');
+
+  } else if (jenis === 'presensi_kelas') {
+    const kelasId = document.getElementById('rekapSiswaKelas').value;
+    if (!kelasId) { alert('Silakan pilih kelas terlebih dahulu di tab Rekap Siswa!'); return; }
+
+    google.script.run.withSuccessHandler(res => {
+      if (res && res.status === 'success') {
+        const kelasObj = rawData.kelases.find(k => k.id === kelasId);
+        let rows = '';
+
+        (res.detailSiswa || []).forEach((s, idx) => {
+          rows += `<tr>
+            <td style="text-align:center;">${idx + 1}</td>
+            <td style="text-align:center;">${s.nis}</td>
+            <td>${s.nama}</td>
+            <td style="text-align:center;">${s.h}</td>
+            <td style="text-align:center;">${s.i}</td>
+            <td style="text-align:center;">${s.s}</td>
+            <td style="text-align:center;">${s.a}</td>
+          </tr>`;
+        });
+
+        printContainer.innerHTML = `
+          <div class="kop-surat">
+            <h5>REKAPITULASI PRESENSI KEHADIRAN SISWA</h5>
+            <p>Kelas: <strong>${kelasObj ? kelasObj.nama : kelasId}</strong> | Periode: <strong>${formatTglIndo(tglAwal)}</strong> s.d. <strong>${formatTglIndo(tglAkhir)}</strong></p>
+          </div>
+          <table class="table-print">
+            <thead>
+              <tr>
+                <th style="width: 5%;">No</th>
+                <th style="width: 15%;">NIS</th>
+                <th style="width: 40%;">Nama Siswa</th>
+                <th style="width: 10%;">Hadir (H)</th>
+                <th style="width: 10%;">Izin (I)</th>
+                <th style="width: 10%;">Sakit (S)</th>
+                <th style="width: 10%;">Alpa (A)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows || '<tr><td colspan="7" style="text-align:center;">Tidak ada data presensi pada periode ini.</td></tr>'}
+            </tbody>
+          </table>
+          <div class="ttd-box">
+            <div class="ttd-col">
+              <p>Mengetahui,<br>Kepala Sekolah</p>
+              <br><br><br>
+              <p>(____________________)<br>NIP. </p>
+            </div>
+            <div class="ttd-col">
+              <p>${titimangsa}<br>Wali Kelas</p>
+              <br><br><br>
+              <p>(____________________)<br>NIP. </p>
+            </div>
+          </div>
+        `;
+
+        window.print();
+      }
+    }).getRekapSiswa(kelasId, 'mingguan', tglAwal, tglAkhir, '1', '2026', '1');
+  } else if (jenis === 'presensi_siswa') {
+    const nis = document.getElementById('cetakSelectSiswa').value;
+    if (!nis) { alert('Silakan pilih siswa terlebih dahulu!'); return; }
+    alert('Pilihan cetak per individu siswa berhasil dipilih.');
+  }
+}
+</script>
