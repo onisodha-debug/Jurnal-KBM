@@ -95,7 +95,7 @@
 
       <div class="form-group">
         <label>Materi / Sub-Topik:</label>
-        <select id="materi" required><option value="">-- Pilih Kelas & Mapel Terlebih Dahulu --</option></select>
+        <select id="materi" required><option value="">-- Pilih Mapel Terlebih Dahulu --</option></select>
       </div>
 
       <div class="form-group">
@@ -195,7 +195,6 @@
       .then(res => {
         showLoading(false);
         if (res.status === 'success') {
-          // Parsing adaptif sesuai header sheet Data_Materi
           masterMateris = (res.data.materis || []).map(m => {
             let idMapel = String(m.idMapel || m.ID_Mapel || m.mapelId || m[0] || '');
             let pokok = m.materiPokok || m.Materi_Pokok || m[1] || '';
@@ -211,9 +210,7 @@
             }
 
             return {
-              rawIdMapel: idMapel,
-              mapelId: m.mapelId || idMapel.split('-')[0] || '',
-              kelasId: m.kelasId || idMapel.split('-')[1] || '',
+              rawIdMapel: idMapel.toUpperCase(),
               nama: namaTeks || 'Materi Tanpa Judul'
             };
           });
@@ -250,22 +247,19 @@
 
   function onKelasOrMapelChange() {
     const kelasId = document.getElementById('kelas').value;
-    const mapelId = document.getElementById('mapel').value;
+    const mapelId = document.getElementById('mapel').value; // Contoh: "M02-7" atau "M02"
 
-    // Ambil digit angka kelas (contoh: "Kelas 8-A" atau "K8A" -> "8")
-    const angkaKelas = kelasId.match(/\d+/)?.[0] || kelasId;
-
-    // 1. Cascading Dropdown Materi
+    // 1. Dropdown Materi berdasarkan Mapel yang dipilih
     const selectMateri = document.getElementById('materi');
     selectMateri.innerHTML = '<option value="">-- Pilih Materi --</option>';
 
-    if (kelasId && mapelId) {
+    if (mapelId) {
+      const selectedMapelClean = mapelId.toUpperCase().trim();
+      
       const filteredMateri = masterMateris.filter(m => {
-        const matchIDMapel = m.rawIdMapel.toUpperCase().includes(mapelId.toUpperCase()) && 
-                             m.rawIdMapel.includes(angkaKelas);
-        const matchDirect = (String(m.mapelId) === String(mapelId)) && 
-                            (String(m.kelasId) === String(kelasId) || String(m.kelasId) === String(angkaKelas));
-        return matchIDMapel || matchDirect;
+        return m.rawIdMapel === selectedMapelClean || 
+               m.rawIdMapel.startsWith(selectedMapelClean) ||
+               selectedMapelClean.startsWith(m.rawIdMapel);
       });
 
       if (filteredMateri.length > 0) {
@@ -276,11 +270,11 @@
           selectMateri.appendChild(opt);
         });
       } else {
-        selectMateri.innerHTML = '<option value="">-- Tidak Ada Materi untuk Kelas & Mapel Ini --</option>';
+        selectMateri.innerHTML = '<option value="">-- Tidak Ada Materi untuk Mapel Ini --</option>';
       }
     }
 
-    // 2. Render Tabel Presensi Siswa
+    // 2. Render Tabel Presensi Siswa berdasarkan Kelas yang dipilih
     const areaPresensi = document.getElementById('areaPresensi');
     if (!kelasId) {
       areaPresensi.innerHTML = '<p style="color:#6c757d;">Silakan pilih <b>Kelas</b> pada formulir di atas untuk menampilkan daftar siswa.</p>';
