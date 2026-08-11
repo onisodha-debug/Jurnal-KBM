@@ -6,14 +6,43 @@
   <title>SIM Jurnal KBM & Presensi Siswa</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f6f9; }
-    .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    h2 { color: #333; }
+    .container { max-width: 900px; margin: auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    
+    /* Navigasi Tab */
+    .nav-tabs { display: flex; border-bottom: 2px solid #ccc; margin-bottom: 20px; gap: 5px; }
+    .tab-btn { padding: 10px 20px; border: none; background: #e9ecef; cursor: pointer; font-weight: bold; border-radius: 5px 5px 0 0; }
+    .tab-btn.active { background: #007bff; color: white; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .section-title { font-size: 1.1em; font-weight: bold; color: #007bff; margin-top: 20px; margin-bottom: 10px; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
     .form-group { margin-bottom: 15px; }
     label { display: block; margin-bottom: 5px; font-weight: bold; }
     select, input, textarea, button { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
-    button { background-color: #007bff; color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; }
-    button:hover { background-color: #0056b3; }
+    
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 15px; }
+
+    .btn-primary { background-color: #007bff; color: white; border: none; font-weight: bold; cursor: pointer; }
+    .btn-primary:hover { background-color: #0056b3; }
+    .btn-print { background-color: #28a745; color: white; border: none; font-weight: bold; cursor: pointer; width: auto; padding: 8px 16px; margin-bottom: 15px; }
+    .btn-print:hover { background-color: #218838; }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    table, th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background-color: #f8f9fa; }
+
+    .radio-group { display: flex; gap: 10px; justify-content: center; }
+    .radio-group label { font-weight: normal; margin: 0; cursor: pointer; }
+
     #loading { display: none; color: #007bff; font-weight: bold; margin-bottom: 15px; }
+
+    @media print {
+      body { background: white; margin: 0; }
+      .container { box-shadow: none; max-width: 100%; width: 100%; padding: 0; }
+      .nav-tabs, .btn-print, button, #loading, .filter-section { display: none !important; }
+      .tab-content { display: block !important; }
+    }
   </style>
 </head>
 <body>
@@ -22,49 +51,138 @@
   <h2>SIM Jurnal KBM & Presensi Siswa</h2>
   <div id="loading">Memuat data dari server...</div>
 
-  <form id="jurnalForm">
-    <div class="form-group">
-      <label>Tanggal:</label>
-      <input type="date" id="tanggal" required>
-    </div>
+  <!-- Menu Navigasi Tab -->
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="openTab('input-jurnal')">📝 Input Jurnal & Presensi</button>
+    <button class="tab-btn" onclick="openTab('rekap-siswa')">📊 Rekap Presensi Siswa</button>
+    <button class="tab-btn" onclick="openTab('rekap-guru')">👨‍🏫 Rekap Jurnal Guru</button>
+  </div>
 
-    <div class="form-group">
-      <label>Guru Pengajar:</label>
-      <select id="guru" required><option value="">-- Pilih Guru --</option></select>
-    </div>
+  <!-- Tab 1: Input Jurnal -->
+  <div id="input-jurnal" class="tab-content active">
+    <form id="jurnalForm">
+      <div class="section-title">1. Informasi Pembelajaran (Jurnal KBM)</div>
+      
+      <div class="grid-4">
+        <div class="form-group">
+          <label>Tanggal:</label>
+          <input type="date" id="tanggal" required>
+        </div>
+        <div class="form-group">
+          <label>Guru Pengajar:</label>
+          <select id="guru" required><option value="">-- Pilih Guru --</option></select>
+        </div>
+        <div class="form-group">
+          <label>Kelas:</label>
+          <select id="kelas" onchange="onKelasOrMapelChange()" required><option value="">-- Pilih Kelas --</option></select>
+        </div>
+        <div class="form-group">
+          <label>Mata Pelajaran:</label>
+          <select id="mapel" onchange="onKelasOrMapelChange()" required><option value="">-- Pilih Mapel --</option></select>
+        </div>
+      </div>
 
-    <div class="form-group">
-      <label>Kelas:</label>
-      <select id="kelas" required><option value="">-- Pilih Kelas --</option></select>
-    </div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Jam Ke:</label>
+          <input type="text" id="jamKe" placeholder="Contoh: 1 - 2" oninput="hitungJP()" required>
+        </div>
+        <div class="form-group">
+          <label>Jumlah Jam Pelajaran (JP):</label>
+          <input type="number" id="totalJP" placeholder="Otomatis" readonly style="background-color: #e9ecef;">
+        </div>
+      </div>
 
-    <div class="form-group">
-      <label>Mata Pelajaran:</label>
-      <select id="mapel" required><option value="">-- Pilih Mapel --</option></select>
-    </div>
+      <div class="form-group">
+        <label>Materi / Sub-Topik (Cascading Dropdown):</label>
+        <select id="materi" required><option value="">-- Pilih Kelas & Mapel Terlebih Dahulu --</option></select>
+      </div>
 
-    <div class="form-group">
-      <label>Materi / Sub-Topik:</label>
-      <select id="materi" required><option value="">-- Pilih Materi --</option></select>
-    </div>
+      <div class="form-group">
+        <label>Catatan KBM / Kendala:</label>
+        <textarea id="catatan" rows="3" placeholder="Catatan jalannya KBM..."></textarea>
+      </div>
 
-    <div class="form-group">
-      <label>Catatan KBM / Kendala:</label>
-      <textarea id="catatan" rows="3" placeholder="Catatan jalannya KBM..."></textarea>
-    </div>
+      <div class="section-title">2. Presensi Siswa</div>
+      <div id="areaPresensi">
+        <p style="color: #6c757d; italic;">Silakan pilih <b>Kelas</b> pada formulir di atas untuk menampilkan daftar siswa.</p>
+      </div>
 
-    <button type="submit">Simpan Jurnal</button>
-  </form>
+      <button type="submit" class="btn-primary" style="margin-top: 20px;">Simpan Jurnal & Presensi</button>
+    </form>
+  </div>
+
+  <!-- Tab 2: Rekap Presensi Siswa -->
+  <div id="rekap-siswa" class="tab-content">
+    <div class="filter-section">
+      <div class="form-group">
+        <label>Pilih Kelas:</label>
+        <select id="rekapKelasSiswa"><option value="">-- Pilih Kelas --</option></select>
+      </div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Tanggal Awal:</label>
+          <input type="date" id="tglAwalSiswa">
+        </div>
+        <div class="form-group">
+          <label>Tanggal Akhir:</label>
+          <input type="date" id="tglAkhirSiswa">
+        </div>
+      </div>
+      <button class="btn-primary" onclick="loadRekapSiswa()">Tampilkan Rekap Siswa</button>
+    </div>
+    <hr style="margin: 20px 0;">
+    <button class="btn-print" onclick="window.print()">🖨️ Cetak / Print Rekap Siswa</button>
+    <div id="tabelRekapSiswaArea"></div>
+  </div>
+
+  <!-- Tab 3: Rekap Jurnal Guru -->
+  <div id="rekap-guru" class="tab-content">
+    <div class="filter-section">
+      <div class="form-group">
+        <label>Pilih Guru:</label>
+        <select id="rekapGuruSelect"><option value="">-- Pilih Guru --</option></select>
+      </div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Tanggal Awal:</label>
+          <input type="date" id="tglAwalGuru">
+        </div>
+        <div class="form-group">
+          <label>Tanggal Akhir:</label>
+          <input type="date" id="tglAkhirGuru">
+        </div>
+      </div>
+      <button class="btn-primary" onclick="loadRekapGuru()">Tampilkan Rekap Guru</button>
+    </div>
+    <hr style="margin: 20px 0;">
+    <button class="btn-print" onclick="window.print()">🖨️ Cetak / Print Rekap Guru</button>
+    <div id="tabelRekapGuruArea"></div>
+  </div>
+
 </div>
 
 <script>
-  // TEMPELKAN URL DEPLOY APPS SCRIPT KAMU DI SINI:
   const API_URL = "https://script.google.com/macros/s/AKfycbw7S52dVke44xjHNhOlop0ONaikrqqwV3-vGiSlnQFno1pGSeB5WlJoTmrvr0ctUQk53g/exec";
+
+  let masterMateris = [];
+  let masterSiswas = [];
 
   document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("tanggal").valueAsDate = new Date();
+    document.getElementById("tglAwalSiswa").valueAsDate = new Date();
+    document.getElementById("tglAkhirSiswa").valueAsDate = new Date();
+    document.getElementById("tglAwalGuru").valueAsDate = new Date();
+    document.getElementById("tglAkhirGuru").valueAsDate = new Date();
     loadInitialData();
   });
+
+  function openTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
 
   function showLoading(show) {
     document.getElementById("loading").style.display = show ? "block" : "none";
@@ -77,22 +195,27 @@
       .then(res => {
         showLoading(false);
         if (res.status === 'success') {
+          masterMateris = res.data.materis;
+          masterSiswas = res.data.siswas;
+
           populateDropdown('guru', res.data.gurus, 'nip', 'nama');
+          populateDropdown('rekapGuruSelect', res.data.gurus, 'nip', 'nama');
+          
           populateDropdown('kelas', res.data.kelases, 'id', 'nama');
+          populateDropdown('rekapKelasSiswa', res.data.kelases, 'id', 'nama');
+
           populateDropdown('mapel', res.data.mapels, 'id', 'nama');
-          populateDropdown('materi', res.data.materis, 'id', 'nama');
-        } else {
-          alert("Gagal memuat data: " + res.message);
         }
       })
       .catch(err => {
         showLoading(false);
-        alert("Error koneksi API: " + err);
+        console.error("Error API:", err);
       });
   }
 
   function populateDropdown(elemId, data, valKey, textKey) {
     const select = document.getElementById(elemId);
+    select.innerHTML = `<option value="">-- Pilih ${elemId.toUpperCase()} --</option>`;
     data.forEach(item => {
       const opt = document.createElement('option');
       opt.value = item[valKey];
@@ -101,20 +224,146 @@
     });
   }
 
+  function onKelasOrMapelChange() {
+    const kelasId = document.getElementById('kelas').value;
+    const mapelId = document.getElementById('mapel').value;
+
+    // 1. Cascading Dropdown Materi
+    const selectMateri = document.getElementById('materi');
+    selectMateri.innerHTML = '<option value="">-- Pilih Materi --</option>';
+
+    if (kelasId && mapelId) {
+      const filteredMateri = masterMateris.filter(m => 
+        String(m.kelasId) === String(kelasId) && String(m.mapelId) === String(mapelId)
+      );
+      filteredMateri.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m.id;
+        opt.textContent = m.nama;
+        selectMateri.appendChild(opt);
+      });
+    }
+
+    // 2. Render Tabel Presensi Siswa
+    const areaPresensi = document.getElementById('areaPresensi');
+    if (!kelasId) {
+      areaPresensi.innerHTML = '<p style="color:#6c757d;">Silakan pilih <b>Kelas</b> pada formulir di atas untuk menampilkan daftar siswa.</p>';
+      return;
+    }
+
+    const filteredSiswa = masterSiswas.filter(s => String(s.kelasId) === String(kelasId));
+    if (filteredSiswa.length === 0) {
+      areaPresensi.innerHTML = '<p style="color:#dc3545;">Tidak ada data siswa di kelas ini.</p>';
+      return;
+    }
+
+    let html = `<table><thead><tr><th>No</th><th>NIS</th><th>Nama Siswa</th><th style="text-align:center;">Status Presensi</th></tr></thead><tbody>`;
+    filteredSiswa.forEach((s, idx) => {
+      html += `<tr>
+        <td>${idx + 1}</td>
+        <td>${s.nis}</td>
+        <td>${s.nama}</td>
+        <td>
+          <div class="radio-group">
+            <label><input type="radio" name="presensi_${s.nis}" value="H" checked> H</label>
+            <label><input type="radio" name="presensi_${s.nis}" value="I"> I</label>
+            <label><input type="radio" name="presensi_${s.nis}" value="S"> S</label>
+            <label><input type="radio" name="presensi_${s.nis}" value="A"> A</label>
+          </div>
+        </td>
+      </tr>`;
+    });
+    html += `</tbody></table>`;
+    areaPresensi.innerHTML = html;
+  }
+
+  function hitungJP() {
+    const jamKeVal = document.getElementById('jamKe').value;
+    const matches = jamKeVal.match(/\d+/g);
+    if (matches && matches.length >= 2) {
+      const awal = parseInt(matches[0]);
+      const akhir = parseInt(matches[matches.length - 1]);
+      document.getElementById('totalJP').value = (akhir - awal + 1);
+    } else if (matches && matches.length === 1) {
+      document.getElementById('totalJP').value = 1;
+    } else {
+      document.getElementById('totalJP').value = '';
+    }
+  }
+
+  function loadRekapSiswa() {
+    const kelasId = document.getElementById('rekapKelasSiswa').value;
+    const tglAwal = document.getElementById('tglAwalSiswa').value;
+    const tglAkhir = document.getElementById('tglAkhirSiswa').value;
+
+    if (!kelasId) return alert("Pilih kelas terlebih dahulu!");
+
+    showLoading(true);
+    fetch(`${API_URL}?action=getRekapSiswa&kelasId=${kelasId}&tglAwal=${tglAwal}&tglAkhir=${tglAkhir}`)
+      .then(res => res.json())
+      .then(res => {
+        showLoading(false);
+        if (res.status === 'success') {
+          let html = `<table><thead><tr><th>NIS</th><th>Nama Siswa</th><th>Hadir (H)</th><th>Izin (I)</th><th>Sakit (S)</th><th>Alfa (A)</th></tr></thead><tbody>`;
+          res.detailSiswa.forEach(s => {
+            html += `<tr><td>${s.nis}</td><td>${s.nama}</td><td>${s.h}</td><td>${s.i}</td><td>${s.s}</td><td>${s.a}</td></tr>`;
+          });
+          html += `</tbody></table>`;
+          document.getElementById('tabelRekapSiswaArea').innerHTML = html;
+        }
+      });
+  }
+
+  function loadRekapGuru() {
+    const nip = document.getElementById('rekapGuruSelect').value;
+    const tglAwal = document.getElementById('tglAwalGuru').value;
+    const tglAkhir = document.getElementById('tglAkhirGuru').value;
+
+    if (!nip) return alert("Pilih guru terlebih dahulu!");
+
+    showLoading(true);
+    fetch(`${API_URL}?action=getRekapGuru&nip=${nip}&tglAwal=${tglAwal}&tglAkhir=${tglAkhir}`)
+      .then(res => res.json())
+      .then(res => {
+        showLoading(false);
+        if (res.status === 'success') {
+          let html = `<p><b>Total Sesi Mengajar:</b> ${res.statistik.totalSesi} | <b>Total Jam Pelajaran (JP):</b> ${res.statistik.totalJP}</p>`;
+          html += `<table><thead><tr><th>Tanggal</th><th>Kelas</th><th>Mapel</th><th>Jam Ke</th><th>Materi</th><th>Catatan</th></tr></thead><tbody>`;
+          res.jurnal.forEach(j => {
+            html += `<tr><td>${j.tanggal}</td><td>${j.kelas}</td><td>${j.mapel}</td><td>${j.jamKe}</td><td>${j.materi}</td><td>${j.catatan}</td></tr>`;
+          });
+          html += `</tbody></table>`;
+          document.getElementById('tabelRekapGuruArea').innerHTML = html;
+        }
+      });
+  }
+
   document.getElementById("jurnalForm").addEventListener("submit", function(e) {
     e.preventDefault();
     showLoading(true);
 
+    const kelasId = document.getElementById("kelas").value;
+    const filteredSiswa = masterSiswas.filter(s => String(s.kelasId) === String(kelasId));
+    
+    const presensiData = filteredSiswa.map(s => {
+      const selectedStatus = document.querySelector(`input[name="presensi_${s.nis}"]:checked`);
+      return {
+        nis: s.nis,
+        nama: s.nama,
+        status: selectedStatus ? selectedStatus.value : 'H'
+      };
+    });
+
     const payload = {
       tanggal: document.getElementById("tanggal").value,
       nip: document.getElementById("guru").value,
-      kelasId: document.getElementById("kelas").value,
+      kelasId: kelasId,
       mapelId: document.getElementById("mapel").value,
       materiId: document.getElementById("materi").value,
+      jamKe: document.getElementById("jamKe").value,
+      totalJP: document.getElementById("totalJP").value,
       catatan: document.getElementById("catatan").value,
-      jamKe: "1-2",
-      totalJP: 2,
-      presensi: []
+      presensi: presensiData
     };
 
     fetch(API_URL, {
@@ -125,15 +374,16 @@
     .then(res => {
       showLoading(false);
       if (res.status === 'success') {
-        alert("Data Jurnal Berhasil Disimpan!");
+        alert("Data Jurnal & Presensi Berhasil Disimpan!");
         document.getElementById("jurnalForm").reset();
+        document.getElementById('areaPresensi').innerHTML = '<p style="color:#6c757d;">Silakan pilih <b>Kelas</b> pada formulir di atas untuk menampilkan daftar siswa.</p>';
       } else {
         alert("Gagal menyimpan: " + res.message);
       }
     })
     .catch(err => {
       showLoading(false);
-      alert("Error: " + err);
+      alert("Error simpan data: " + err);
     });
   });
 </script>
