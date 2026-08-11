@@ -93,9 +93,20 @@
         </div>
       </div>
 
-      <div class="form-group">
-        <label>Materi / Sub-Topik:</label>
-        <select id="materi" required><option value="">-- Pilih Mapel Terlebih Dahulu --</option></select>
+      <!-- Dropdown Terpisah: Materi Pokok & Sub-Topik -->
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Materi Pokok / Bab:</label>
+          <select id="materiPokok" onchange="onMateriPokokChange()" required>
+            <option value="">-- Pilih Mapel Terlebih Dahulu --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Sub-Topik / Rincian Materi:</label>
+          <select id="subTopik" required>
+            <option value="">-- Pilih Materi Pokok Terlebih Dahulu --</option>
+          </select>
+        </div>
       </div>
 
       <div class="form-group">
@@ -200,18 +211,10 @@
             let pokok = m.materiPokok || m.Materi_Pokok || m[1] || '';
             let sub = m.subTopik || m.Sub_Topik || m[2] || '';
 
-            let namaTeks = pokok;
-            if (pokok && sub) {
-              namaTeks = `${pokok} - ${sub}`;
-            } else if (sub) {
-              namaTeks = sub;
-            } else if (m.nama || m.materi) {
-              namaTeks = m.nama || m.materi;
-            }
-
             return {
               rawIdMapel: idMapel.toUpperCase(),
-              nama: namaTeks || 'Materi Tanpa Judul'
+              materiPokok: pokok.trim(),
+              subTopik: sub.trim()
             };
           });
 
@@ -247,34 +250,39 @@
 
   function onKelasOrMapelChange() {
     const kelasId = document.getElementById('kelas').value;
-    const mapelId = document.getElementById('mapel').value; // Contoh: "M02-7" atau "M02"
+    const mapelId = document.getElementById('mapel').value;
 
-    // 1. Dropdown Materi berdasarkan Mapel yang dipilih
-    const selectMateri = document.getElementById('materi');
-    selectMateri.innerHTML = '<option value="">-- Pilih Materi --</option>';
+    const selectPokok = document.getElementById('materiPokok');
+    const selectSub = document.getElementById('subTopik');
+    
+    selectPokok.innerHTML = '<option value="">-- Pilih Materi Pokok --</option>';
+    selectSub.innerHTML = '<option value="">-- Pilih Materi Pokok Terlebih Dahulu --</option>';
 
     if (mapelId) {
       const selectedMapelClean = mapelId.toUpperCase().trim();
       
-      const filteredMateri = masterMateris.filter(m => {
-        return m.rawIdMapel === selectedMapelClean || 
-               m.rawIdMapel.startsWith(selectedMapelClean) ||
-               selectedMapelClean.startsWith(m.rawIdMapel);
-      });
+      // Ambil daftar materi pokok unik untuk Mapel ini
+      const filtered = masterMateris.filter(m => 
+        m.rawIdMapel === selectedMapelClean || 
+        m.rawIdMapel.startsWith(selectedMapelClean) ||
+        selectedMapelClean.startsWith(m.rawIdMapel)
+      );
 
-      if (filteredMateri.length > 0) {
-        filteredMateri.forEach(m => {
+      const uniquePokok = [...new Set(filtered.map(m => m.materiPokok))].filter(Boolean);
+
+      if (uniquePokok.length > 0) {
+        uniquePokok.forEach(pokok => {
           const opt = document.createElement('option');
-          opt.value = m.nama;
-          opt.textContent = m.nama;
-          selectMateri.appendChild(opt);
+          opt.value = pokok;
+          opt.textContent = pokok;
+          selectPokok.appendChild(opt);
         });
       } else {
-        selectMateri.innerHTML = '<option value="">-- Tidak Ada Materi untuk Mapel Ini --</option>';
+        selectPokok.innerHTML = '<option value="">-- Tidak Ada Materi untuk Mapel Ini --</option>';
       }
     }
 
-    // 2. Render Tabel Presensi Siswa berdasarkan Kelas yang dipilih
+    // Render Tabel Presensi Siswa
     const areaPresensi = document.getElementById('areaPresensi');
     if (!kelasId) {
       areaPresensi.innerHTML = '<p style="color:#6c757d;">Silakan pilih <b>Kelas</b> pada formulir di atas untuk menampilkan daftar siswa.</p>';
@@ -305,6 +313,38 @@
     });
     html += `</tbody></table>`;
     areaPresensi.innerHTML = html;
+  }
+
+  function onMateriPokokChange() {
+    const mapelId = document.getElementById('mapel').value;
+    const selectedPokok = document.getElementById('materiPokok').value;
+    const selectSub = document.getElementById('subTopik');
+
+    selectSub.innerHTML = '<option value="">-- Pilih Sub-Topik --</option>';
+
+    if (selectedPokok && mapelId) {
+      const selectedMapelClean = mapelId.toUpperCase().trim();
+      
+      const filteredSubs = masterMateris.filter(m => {
+        const isMapelMatch = m.rawIdMapel === selectedMapelClean || 
+                             m.rawIdMapel.startsWith(selectedMapelClean) ||
+                             selectedMapelClean.startsWith(m.rawIdMapel);
+        return isMapelMatch && m.materiPokok === selectedPokok;
+      });
+
+      const uniqueSubs = [...new Set(filteredSubs.map(m => m.subTopik))].filter(Boolean);
+
+      if (uniqueSubs.length > 0) {
+        uniqueSubs.forEach(sub => {
+          const opt = document.createElement('option');
+          opt.value = sub;
+          opt.textContent = sub;
+          selectSub.appendChild(opt);
+        });
+      } else {
+        selectSub.innerHTML = '<option value="-">- (Tidak Ada Sub-Topik)</option>';
+      }
+    }
   }
 
   function hitungJP() {
@@ -384,12 +424,21 @@
       };
     });
 
+    const materiPokokVal = document.getElementById("materiPokok").value;
+    const subTopikVal = document.getElementById("subTopik").value;
+    
+    // Gabungkan Materi Pokok + Sub-Topik untuk disimpan ke Spreadsheet
+    let gabunganMateri = materiPokokVal;
+    if (subTopikVal && subTopikVal !== '-') {
+      gabunganMateri = `${materiPokokVal} - ${subTopikVal}`;
+    }
+
     const payload = {
       tanggal: document.getElementById("tanggal").value,
       nip: document.getElementById("guru").value,
       kelasId: kelasId,
       mapelId: document.getElementById("mapel").value,
-      materiId: document.getElementById("materi").value,
+      materiId: gabunganMateri,
       jamKe: document.getElementById("jamKe").value,
       totalJP: document.getElementById("totalJP").value,
       catatan: document.getElementById("catatan").value,
