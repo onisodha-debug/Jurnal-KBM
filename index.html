@@ -57,7 +57,7 @@
       margin: 0;
     }
 
-    /* Navigasi Tab - Selalu 3 Berdampingan Rapi (PC & HP) */
+    /* Navigasi Tab - Presisi 3 Kolom Berdampingan */
     .nav-tabs {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -138,7 +138,7 @@
       gap: 15px;
     }
 
-    /* Mobile Breakpoint Optimization */
+    /* Mobile Responsive */
     @media (max-width: 768px) {
       body { padding: 10px; }
       .container { padding: 15px; border-radius: 8px; }
@@ -150,7 +150,6 @@
         padding: 8px 2px;
       }
 
-      /* Mengubah Grid Isian Formulir menjadi 1 kolom penuh di HP */
       .grid-2, .grid-4 {
         grid-template-columns: 1fr !important;
         gap: 10px;
@@ -254,7 +253,7 @@
 
 <div class="container">
   
-  <!-- Header Judul Sekolah & SIM -->
+  <!-- Header Judul Sekolah -->
   <div class="app-header">
     <h1 class="school-title">SMP SWASTA KALOKA</h1>
     <h2 class="app-title">SIM Jurnal KBM & Presensi Siswa</h2>
@@ -262,7 +261,7 @@
 
   <div id="loading">⏳ Memuat data dari server...</div>
 
-  <!-- Menu Navigasi Tab (3 Berdampingan Rapi) -->
+  <!-- Menu Navigasi Tab -->
   <div class="nav-tabs">
     <button class="tab-btn active" onclick="openTab('input-jurnal')">📝 Input Jurnal & Presensi</button>
     <button class="tab-btn" onclick="openTab('rekap-siswa')">📊 Rekap Presensi Siswa</button>
@@ -304,7 +303,7 @@
         </div>
       </div>
 
-      <!-- Dropdown Materi Pokok & Sub Topik + Tombol Tambah (+) -->
+      <!-- Dropdown Materi Pokok & Sub Topik + Button (+) -->
       <div class="grid-2">
         <div class="form-group">
           <label>Materi Pokok / Bab:</label>
@@ -491,7 +490,9 @@
   }
 
   function onKelasOrMapelChange() {
-    const kelasId = document.getElementById('kelas').value;
+    const kelasSelect = document.getElementById('kelas');
+    const kelasVal = kelasSelect.value;
+    const kelasText = kelasSelect.options[kelasSelect.selectedIndex] ? kelasSelect.options[kelasSelect.selectedIndex].text : '';
     const mapelId = document.getElementById('mapel').value;
 
     const selectPokok = document.getElementById('materiPokok');
@@ -523,12 +524,32 @@
     }
 
     const areaPresensi = document.getElementById('areaPresensi');
-    if (!kelasId) {
+    if (!kelasVal) {
       areaPresensi.innerHTML = '<p style="color:#6c757d;">Silakan pilih <b>Kelas</b> pada formulir di atas untuk menampilkan daftar siswa.</p>';
       return;
     }
 
-    const filteredSiswa = masterSiswas.filter(s => String(s.kelasId) === String(kelasId));
+    // PENCOCOKAN FLEKSIBEL UNTUK DATA SISWA
+    const cleanKelasVal = String(kelasVal).toUpperCase().trim();
+    const cleanKelasText = String(kelasText).toUpperCase().trim();
+
+    const filteredSiswa = masterSiswas.filter(s => {
+      const sKelas = String(s.kelasId).toUpperCase().trim();
+      const sKelasNoSpace = sKelas.replace(/\s+/g, '');
+      const valNoSpace = cleanKelasVal.replace(/\s+/g, '');
+      const textNoSpace = cleanKelasText.replace(/\s+/g, '');
+
+      return (
+        sKelas === cleanKelasVal ||
+        sKelas === cleanKelasText ||
+        sKelasNoSpace === valNoSpace ||
+        sKelasNoSpace === textNoSpace ||
+        cleanKelasVal.includes(sKelas) ||
+        cleanKelasText.includes(sKelas) ||
+        sKelas.includes(cleanKelasVal)
+      );
+    });
+
     if (filteredSiswa.length === 0) {
       areaPresensi.innerHTML = '<p style="color:#dc3545;">Tidak ada data siswa di kelas ini.</p>';
       return;
@@ -684,7 +705,7 @@
     document.getElementById('subKopSiswa').innerText = `Kelas: ${kelasTeks} | Periode: ${tglAwal} s/d ${tglAkhir}`;
 
     showLoading(true);
-    fetch(`${API_URL}?action=getRekapSiswa&kelasId=${kelasId}&tglAwal=${tglAwal}&tglAkhir=${tglAkhir}`)
+    fetch(`${API_URL}?action=getRekapSiswa&kelasId=${encodeURIComponent(kelasId)}&tglAwal=${tglAwal}&tglAkhir=${tglAkhir}`)
       .then(res => res.json())
       .then(res => {
         showLoading(false);
@@ -711,7 +732,7 @@
     document.getElementById('subKopGuru').innerText = `Nama Guru: ${guruTeks} | Periode: ${tglAwal} s/d ${tglAkhir}`;
 
     showLoading(true);
-    fetch(`${API_URL}?action=getRekapGuru&nip=${nip}&tglAwal=${tglAwal}&tglAkhir=${tglAkhir}`)
+    fetch(`${API_URL}?action=getRekapGuru&nip=${encodeURIComponent(nip)}&tglAwal=${tglAwal}&tglAkhir=${tglAkhir}`)
       .then(res => res.json())
       .then(res => {
         showLoading(false);
@@ -736,8 +757,24 @@
     e.preventDefault();
     showLoading(true);
 
-    const kelasId = document.getElementById("kelas").value;
-    const filteredSiswa = masterSiswas.filter(s => String(s.kelasId) === String(kelasId));
+    const kelasSelect = document.getElementById("kelas");
+    const kelasId = kelasSelect.value;
+    const kelasText = kelasSelect.options[kelasSelect.selectedIndex].text;
+
+    // Filter siswa yang ada di tabel presensi saat ini
+    const cleanKelasVal = String(kelasId).toUpperCase().trim();
+    const cleanKelasText = String(kelasText).toUpperCase().trim();
+
+    const filteredSiswa = masterSiswas.filter(s => {
+      const sKelas = String(s.kelasId).toUpperCase().trim();
+      return (
+        sKelas === cleanKelasVal ||
+        sKelas === cleanKelasText ||
+        sKelas.replace(/\s+/g, '') === cleanKelasVal.replace(/\s+/g, '') ||
+        cleanKelasVal.includes(sKelas) ||
+        sKelas.includes(cleanKelasVal)
+      );
+    });
     
     const presensiData = filteredSiswa.map(s => {
       const selectedStatus = document.querySelector(`input[name="presensi_${s.nis}"]:checked`);
