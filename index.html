@@ -3,823 +3,572 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SIM Jurnal KBM & Presensi - SMP Swasta Kaloka</title>
+  <title>SIM Jurnal KBM & Presensi Siswa</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root {
-      --primary-color: #0d6efd;
-      --primary-hover: #0b5ed7;
-      --bg-color: #f4f6f9;
-      --card-bg: #ffffff;
-      --text-color: #212529;
-      --border-color: #dee2e6;
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      margin: 0;
-      padding: 15px;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-    }
-
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-      background: var(--card-bg);
-      padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    }
-
-    .app-header {
-      text-align: center;
-      margin-bottom: 25px;
-      border-bottom: 2px solid #e9ecef;
-      padding-bottom: 15px;
-    }
-
-    .app-header .school-title {
-      font-size: 1.8em;
-      font-weight: 800;
-      color: #1e293b;
-      margin: 0 0 5px 0;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-    }
-
-    .app-header .app-title {
-      font-size: 1.2em;
-      font-weight: 600;
-      color: var(--primary-color);
-      margin: 0;
-    }
-
-    .nav-tabs {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
-      border-bottom: 2px solid var(--border-color);
-      margin-bottom: 20px;
-      padding-bottom: 8px;
-    }
-
-    .tab-btn {
-      padding: 10px 4px;
-      border: none;
-      background: #e9ecef;
-      color: #495057;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 0.85em;
-      border-radius: 8px 8px 0 0;
-      transition: all 0.2s ease;
-      text-align: center;
-      white-space: normal;
-      word-wrap: break-word;
-    }
-
-    .tab-btn.active {
-      background: var(--primary-color);
-      color: white;
-    }
-
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-
-    .section-title {
-      font-size: 1.1em;
-      font-weight: 700;
-      color: var(--primary-color);
-      margin-top: 25px;
-      margin-bottom: 15px;
-      border-bottom: 1px solid var(--border-color);
-      padding-bottom: 8px;
-    }
-
-    .form-group { margin-bottom: 15px; }
-    
-    label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: 600;
-      font-size: 0.9em;
-      color: #343a40;
-    }
-
-    select, input, textarea, button {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid #ced4da;
-      border-radius: 6px;
-      font-size: 0.95em;
-      transition: border-color 0.2s ease;
-    }
-
-    select:focus, input:focus, textarea:focus {
-      outline: none;
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
-    }
-
-    .grid-2 {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 15px;
-    }
-
-    .grid-4 {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 15px;
-    }
-
-    @media (max-width: 768px) {
-      body { padding: 10px; }
-      .container { padding: 15px; border-radius: 8px; }
-      .app-header .school-title { font-size: 1.4em; }
-      .app-header .app-title { font-size: 1.05em; }
-
-      .tab-btn {
-        font-size: 0.75em;
-        padding: 8px 2px;
-      }
-
-      .grid-2, .grid-4 {
-        grid-template-columns: 1fr !important;
-        gap: 10px;
-      }
-    }
-
-    .input-with-btn { display: flex; gap: 8px; }
-    
-    .btn-add {
-      width: auto;
-      padding: 0 16px;
-      background: #198754;
-      color: white;
-      border: none;
-      font-weight: bold;
-      font-size: 1.2em;
-      cursor: pointer;
-      border-radius: 6px;
-    }
-    
-    .btn-add:hover { background: #146c43; }
-
-    .btn-primary {
-      background-color: var(--primary-color);
-      color: white;
-      border: none;
-      font-weight: 600;
-      cursor: pointer;
-      padding: 12px;
-      border-radius: 6px;
-    }
-
-    .btn-primary:hover { background-color: var(--primary-hover); }
-
-    .btn-print {
-      background-color: #198754;
-      color: white;
-      border: none;
-      font-weight: 600;
-      cursor: pointer;
-      width: auto;
-      padding: 10px 20px;
-      margin-bottom: 15px;
-      border-radius: 6px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-      font-size: 0.9em;
-    }
-
-    table, th, td { border: 1px solid var(--border-color); padding: 10px; text-align: left; }
-    th { background-color: #f8f9fa; font-weight: 600; }
-
-    .radio-group { display: flex; gap: 12px; justify-content: center; }
-    .radio-group label { font-weight: normal; margin: 0; cursor: pointer; }
-
-    #loading {
-      display: none;
-      background-color: #e7f1ff;
-      color: #0c63e4;
-      padding: 10px 15px;
-      border-radius: 6px;
-      font-weight: 600;
-      margin-bottom: 15px;
-      text-align: center;
-    }
-
-    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
-    .modal-content { background: white; max-width: 450px; margin: 15% auto; padding: 20px; border-radius: 8px; width: 90%; }
-    .modal-header { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; color: var(--primary-color); border-bottom: 1px solid #ddd; padding-bottom: 8px; }
-    .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
-    .btn-secondary { background: #6c757d; color: white; border: none; font-weight: bold; cursor: pointer; width: auto; padding: 8px 16px; border-radius: 6px; }
-
-    .print-only { display: none; }
-
-    @media print {
-      body { background: white; margin: 0; padding: 0; font-size: 12pt; }
-      .container { box-shadow: none; max-width: 100%; width: 100%; padding: 0; margin: 0; }
-      .nav-tabs, .btn-print, button, #loading, .filter-section, #input-jurnal, .app-header { display: none !important; }
-      .tab-content { display: none !important; }
-      .tab-content.active { display: block !important; }
-      .print-only { display: block !important; }
-      .kop-header { text-align: center; border-bottom: 3px double #000; padding-bottom: 10px; margin-bottom: 20px; }
-      .kop-header h2 { margin: 0; font-size: 18pt; text-transform: uppercase; }
-      .kop-header h3 { margin: 5px 0 0 0; font-size: 14pt; }
-      .kop-header p { margin: 2px 0; font-size: 10pt; }
-      table { width: 100% !important; border-collapse: collapse !important; margin-top: 10px; }
-      th, td { border: 1px solid #000 !important; padding: 6px 8px !important; font-size: 10pt; }
-      th { background-color: #eee !important; text-align: center; }
-      .ttd-container { display: flex; justify-content: space-between; margin-top: 40px; page-break-inside: avoid; }
-      .ttd-box { text-align: center; width: 40%; }
-      .ttd-space { height: 60px; }
-    }
+    body { background-color: #f8f9fa; }
+    .nav-pills .nav-link.active { background-color: #0d6efd; }
+    .card { border-radius: 10px; border: none; }
   </style>
 </head>
 <body>
 
-<div class="container">
-  
-  <div class="app-header">
-    <h1 class="school-title">SMP SWASTA KALOKA</h1>
-    <h2 class="app-title">SIM Jurnal KBM & Presensi Siswa</h2>
+<nav class="navbar navbar-dark bg-primary mb-4 shadow-sm">
+  <div class="container-fluid">
+    <span class="navbar-brand mb-0 h1">
+      <i class="fa-solid fa-book-bookmark me-2"></i>SIM Jurnal KBM & Presensi
+    </span>
   </div>
+</nav>
 
-  <div id="loading">⏳ Memuat data dari server...</div>
+<div class="container pb-5">
+  <!-- Navigasi Tab -->
+  <ul class="nav nav-pills mb-4 justify-content-center bg-white p-2 rounded shadow-sm" id="mainTab" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="tab-input-tab" data-bs-toggle="pill" data-bs-target="#tab-input" type="button" role="tab">
+        <i class="fa-solid fa-pen-to-square me-1"></i> Input Jurnal & Presensi
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="tab-rekap-siswa-tab" data-bs-toggle="pill" data-bs-target="#tab-rekap-siswa" type="button" role="tab">
+        <i class="fa-solid fa-user-check me-1"></i> Rekap Presensi Siswa
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="tab-rekap-guru-tab" data-bs-toggle="pill" data-bs-target="#tab-rekap-guru" type="button" role="tab">
+        <i class="fa-solid fa-clipboard-user me-1"></i> Rekap KBM Guru
+      </button>
+    </li>
+  </ul>
 
-  <div class="nav-tabs">
-    <button class="tab-btn active" onclick="openTab('input-jurnal')">📝 Input Jurnal & Presensi</button>
-    <button class="tab-btn" onclick="openTab('rekap-siswa')">📊 Rekap Presensi Siswa</button>
-    <button class="tab-btn" onclick="openTab('rekap-guru')">👨‍🏫 Rekap Jurnal Guru</button>
-  </div>
+  <!-- Konten Tab -->
+  <div class="tab-content" id="mainTabContent">
 
-  <div id="input-jurnal" class="tab-content active">
-    <form id="jurnalForm">
-      <div class="section-title">1. Informasi Pembelajaran (Jurnal KBM)</div>
-      
-      <div class="grid-4">
-        <div class="form-group">
-          <label>Tanggal:</label>
-          <input type="date" id="tanggal" required>
-        </div>
-        <div class="form-group">
-          <label>Guru Pengajar:</label>
-          <select id="guru" required><option value="">-- Pilih GURU --</option></select>
-        </div>
-        <div class="form-group">
-          <label>Kelas:</label>
-          <select id="kelas" onchange="onKelasOrMapelChange()" required><option value="">-- Pilih KELAS --</option></select>
-        </div>
-        <div class="form-group">
-          <label>Mata Pelajaran:</label>
-          <select id="mapel" onchange="onKelasOrMapelChange()" required><option value="">-- Pilih MAPEL --</option></select>
-        </div>
-      </div>
+    <!-- TAB 1: INPUT JURNAL & PRESENSI -->
+    <div class="tab-pane fade show active" id="tab-input" role="tabpanel">
+      <form id="formJurnal">
+        <div class="row">
+          <!-- Form Informasi KBM -->
+          <div class="col-md-5 mb-4">
+            <div class="card shadow-sm h-100">
+              <div class="card-header bg-white fw-bold">
+                <i class="fa-solid fa-circle-info text-primary me-2"></i>Informasi Pembelajaran
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label class="form-label">Tanggal</label>
+                  <input type="date" class="form-control" id="inpTanggal" required>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Guru / Pengajar</label>
+                  <select class="form-select" id="inpGuru" required>
+                    <option value="">-- Pilih Guru --</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Kelas</label>
+                  <select class="form-select" id="inpKelas" onchange="onKelasChange()" required>
+                    <option value="">-- Pilih Kelas --</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Mata Pelajaran</label>
+                  <select class="form-select" id="inpMapel" required>
+                    <option value="">-- Pilih Mapel --</option>
+                  </select>
+                </div>
+                <div class="row">
+                  <div class="col-6 mb-3">
+                    <label class="form-label">Jam Ke-</label>
+                    <input type="text" class="form-control" id="inpJamKe" placeholder="1-2" required>
+                  </div>
+                  <div class="col-6 mb-3">
+                    <label class="form-label">Total JP</label>
+                    <input type="number" class="form-control" id="inpTotalJP" value="2" min="1" required>
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Materi / Sub Materi</label>
+                  <textarea class="form-control" id="inpMateri" rows="2" placeholder="Tuliskan materi pembelajaran..." required></textarea>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Catatan / Hambatan (Opsional)</label>
+                  <textarea class="form-control" id="inpCatatan" rows="2"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
 
-      <div class="grid-2">
-        <div class="form-group">
-          <label>Jam Ke:</label>
-          <input type="text" id="jamKe" placeholder="Contoh: 1 - 2" oninput="hitungJP()" required>
-        </div>
-        <div class="form-group">
-          <label>Jumlah Jam Pelajaran (JP):</label>
-          <input type="number" id="totalJP" placeholder="Otomatis" readonly style="background-color: #e9ecef;">
-        </div>
-      </div>
-
-      <div class="grid-2">
-        <div class="form-group">
-          <label>Materi Pokok / Bab:</label>
-          <div class="input-with-btn">
-            <select id="materiPokok" onchange="onMateriPokokChange()" required>
-              <option value="">-- Pilih Materi Pokok --</option>
-            </select>
-            <button type="button" class="btn-add" onclick="bukaModalMateri()" title="Tambah Materi Baru">+</button>
+          <!-- Form Tabel Presensi Siswa -->
+          <div class="col-md-7 mb-4">
+            <div class="card shadow-sm h-100">
+              <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <span class="fw-bold"><i class="fa-solid fa-users text-primary me-2"></i>Presensi Siswa</span>
+                <div>
+                  <button type="button" class="btn btn-sm btn-outline-success me-1" onclick="setAllStatus('H')">Semua H</button>
+                </div>
+              </div>
+              <div class="card-body p-0">
+                <div class="table-responsive" style="max-height: 480px; overflow-y: auto;">
+                  <table class="table table-hover table-striped align-middle mb-0">
+                    <thead class="table-light sticky-top">
+                      <tr>
+                        <th style="width: 50px;">No</th>
+                        <th>NIS</th>
+                        <th>Nama Siswa</th>
+                        <th class="text-center" style="width: 200px;">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody id="tbodyPresensiSiswa">
+                      <tr>
+                        <td colspan="4" class="text-center text-muted py-4">Pilih kelas terlebih dahulu untuk menampilkan daftar siswa.</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="card-footer bg-white text-end">
+                <button type="submit" class="btn btn-primary px-4" id="btnSimpan">
+                  <i class="fa-solid fa-floppy-disk me-1"></i> Simpan Jurnal & Presensi
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="form-group">
-          <label>Sub-Topik / Rincian Materi:</label>
-          <div class="input-with-btn">
-            <select id="subTopik" required>
-              <option value="">-- Pilih Materi Pokok Terlebih Dahulu --</option>
-            </select>
-            <button type="button" class="btn-add" onclick="bukaModalMateri()" title="Tambah Sub Topik Baru">+</button>
+      </form>
+    </div>
+
+    <!-- TAB 2: REKAP PRESENSI SISWA -->
+    <div class="tab-pane fade" id="tab-rekap-siswa" role="tabpanel">
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <div class="row g-3 align-items-end">
+            <div class="col-md-3">
+              <label class="form-label">Pilih Kelas</label>
+              <select class="form-select" id="rekapKelasSelect">
+                <option value="">-- Pilih Kelas --</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Tanggal Awal</label>
+              <input type="date" class="form-control" id="rekapTglAwal">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Tanggal Akhir</label>
+              <input type="date" class="form-control" id="rekapTglAkhir">
+            </div>
+            <div class="col-md-3">
+              <button type="button" class="btn btn-primary w-100" onclick="loadRekapSiswa()">
+                <i class="fa-solid fa-magnifying-glass me-1"></i> Tampilkan Rekap
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="form-group">
-        <label>Catatan KBM / Kendala:</label>
-        <textarea id="catatan" rows="3" placeholder="Catatan jalannya KBM..."></textarea>
+      <div class="card shadow-sm">
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle mb-0">
+              <thead class="table-primary text-center">
+                <tr>
+                  <th style="width: 50px;">No</th>
+                  <th>NIS</th>
+                  <th>Nama Siswa</th>
+                  <th style="width: 80px;" class="bg-success text-white">Hadir (H)</th>
+                  <th style="width: 80px;" class="bg-info text-white">Izin (I)</th>
+                  <th style="width: 80px;" class="bg-warning text-dark">Sakit (S)</th>
+                  <th style="width: 80px;" class="bg-danger text-white">Alpha (A)</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyRekapSiswa">
+                <tr>
+                  <td colspan="7" class="text-center text-muted py-4">Silakan tentukan parameter kelas dan rentang tanggal di atas.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: REKAP KBM GURU -->
+    <div class="tab-pane fade" id="tab-rekap-guru" role="tabpanel">
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <div class="row g-3 align-items-end">
+            <div class="col-md-3">
+              <label class="form-label">Pilih Guru</label>
+              <select class="form-select" id="rekapGuruSelect">
+                <option value="">-- Pilih Guru --</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Tanggal Awal</label>
+              <input type="date" class="form-control" id="rekapGuruTglAwal">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Tanggal Akhir</label>
+              <input type="date" class="form-control" id="rekapGuruTglAkhir">
+            </div>
+            <div class="col-md-3">
+              <button type="button" class="btn btn-primary w-100" onclick="loadRekapGuru()">
+                <i class="fa-solid fa-magnifying-glass me-1"></i> Tampilkan Rekap
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="section-title">2. Presensi Siswa</div>
-      <div id="areaPresensi">
-        <p style="color: #6c757d;">Silakan pilih <b>Kelas</b> pada formulir di atas untuk menampilkan daftar siswa.</p>
+      <!-- Ringkasan Statistik -->
+      <div class="row mb-4" id="statGuruContainer" style="display: none;">
+        <div class="col-md-6 mb-2">
+          <div class="card bg-primary text-white shadow-sm">
+            <div class="card-body text-center">
+              <h6 class="card-title">Total Pertemuan / Sesi KBM</h6>
+              <h2 class="fw-bold mb-0" id="statTotalSesi">0</h2>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 mb-2">
+          <div class="card bg-success text-white shadow-sm">
+            <div class="card-body text-center">
+              <h6 class="card-title">Total Jam Pelajaran (JP)</h6>
+              <h2 class="fw-bold mb-0" id="statTotalJP">0</h2>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <button type="submit" class="btn-primary" style="margin-top: 20px;">Simpan Jurnal & Presensi</button>
-    </form>
+      <div class="card shadow-sm">
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 50px;">No</th>
+                  <th style="width: 110px;">Tanggal</th>
+                  <th>Kelas</th>
+                  <th>Mapel</th>
+                  <th style="width: 80px;">Jam Ke</th>
+                  <th>Materi / Sub Materi</th>
+                  <th>Catatan</th>
+                  <th style="width: 70px;">JP</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyRekapGuru">
+                <tr>
+                  <td colspan="8" class="text-center text-muted py-4">Silakan tentukan parameter guru dan rentang tanggal di atas.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
-
-  <div id="rekap-siswa" class="tab-content">
-    <div class="filter-section">
-      <div class="form-group"><label>Pilih Kelas:</label><select id="rekapKelasSiswa"><option value="">-- Pilih KELAS --</option></select></div>
-      <div class="grid-2">
-        <div class="form-group"><label>Tanggal Awal:</label><input type="date" id="tglAwalSiswa"></div>
-        <div class="form-group"><label>Tanggal Akhir:</label><input type="date" id="tglAkhirSiswa"></div>
-      </div>
-      <button class="btn-primary" onclick="loadRekapSiswa()">Tampilkan Rekap Siswa</button>
-    </div>
-    <hr style="margin: 20px 0;">
-    <button class="btn-print" onclick="cetakLaporan('rekap-siswa')">🖨️ Cetak / Simpan PDF Rekap Siswa</button>
-    <div id="cetakAreaSiswa">
-      <div class="print-only kop-header">
-        <h2>SMP SWASTA KALOKA</h2>
-        <h3>Laporan Rekapitulasi Presensi Siswa</h3>
-        <p id="subKopSiswa">Periode Laporan</p>
-      </div>
-      <div id="tabelRekapSiswaArea"></div>
-      <div class="print-only ttd-container">
-        <div class="ttd-box"><p>Mengetahui,<br>Kepala Sekolah / Pengawas</p><div class="ttd-space"></div><p><b>_______________________</b></p></div>
-        <div class="ttd-box"><p>Wali Kelas / Petugas</p><div class="ttd-space"></div><p><b>_______________________</b></p></div>
-      </div>
-    </div>
-  </div>
-
-  <div id="rekap-guru" class="tab-content">
-    <div class="filter-section">
-      <div class="form-group"><label>Pilih Guru:</label><select id="rekapGuruSelect"><option value="">-- Pilih GURU --</option></select></div>
-      <div class="grid-2">
-        <div class="form-group"><label>Tanggal Awal:</label><input type="date" id="tglAwalGuru"></div>
-        <div class="form-group"><label>Tanggal Akhir:</label><input type="date" id="tglAkhirGuru"></div>
-      </div>
-      <button class="btn-primary" onclick="loadRekapGuru()">Tampilkan Rekap Guru</button>
-    </div>
-    <hr style="margin: 20px 0;">
-    <button class="btn-print" onclick="cetakLaporan('rekap-guru')">🖨️ Cetak / Simpan PDF Jurnal Guru</button>
-    <div id="cetakAreaGuru">
-      <div class="print-only kop-header">
-        <h2>SMP SWASTA KALOKA</h2>
-        <h3>Laporan Jurnal Pelaksanaan KBM Guru</h3>
-        <p id="subKopGuru">Periode Laporan</p>
-      </div>
-      <div id="tabelRekapGuruArea"></div>
-      <div class="print-only ttd-container">
-        <div class="ttd-box"><p>Mengetahui,<br>Pengawas Sekolah / Kepala Sekolah</p><div class="ttd-space"></div><p><b>_______________________</b></p></div>
-        <div class="ttd-box"><p>Guru Pengajar</p><div class="ttd-space"></div><p><b>_______________________</b></p></div>
-      </div>
-    </div>
-  </div>
-
 </div>
 
-<div id="modalMateri" class="modal">
-  <div class="modal-content">
-    <div class="modal-header">➕ Tambah Materi / Sub-Topik</div>
-    <div class="form-group">
-      <label>Mata Pelajaran (Otomatis):</label>
-      <input type="text" id="modalNamaMapel" readonly style="background-color: #e9ecef; font-weight: bold;">
-    </div>
-    <div class="form-group">
-      <label>Materi Pokok / Bab:</label>
-      <input type="text" id="modalMateriPokok" placeholder="Contoh: Bab 4: Apresiasi Seni">
-    </div>
-    <div class="form-group">
-      <label>Sub-Topik / Detail Materi:</label>
-      <input type="text" id="modalSubTopik" placeholder="Contoh: Teknik Menggambar Bentuk">
-    </div>
-    <div class="modal-footer">
-      <button type="button" class="btn-secondary" onclick="tutupModalMateri()">Batal</button>
-      <button type="button" class="btn-primary" style="width:auto;" onclick="simpanMateriBaru()">Simpan Materi</button>
-    </div>
-  </div>
-</div>
+<!-- Bootstrap 5 JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-  const API_URL = "https://script.google.com/macros/s/AKfycbyEf-WOvNqH9q8GqikyrS9Mx0d8pcU07R5eVKjhw0nDXuCdpil2oZ95Jbqx2T15QdwnXQ/exec";
+  // =========================================================================
+  // ⚠️ ISI DENGAN URL DEPLOYMENT WEB APP APPS SCRIPT-MU DI BAWAH INI:
+  // Contoh: "https://script.google.com/macros/s/AKfycbx123456789.../exec"
+  // =========================================================================
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyEf-WOvNqH9q8GqikyrS9Mx0d8pcU07R5eVKjhw0nDXuCdpil2oZ95Jbqx2T15QdwnXQ/exec";
 
-  let masterMateris = [];
-  let masterSiswas = [];
+  // Global Data Store
+  var globalData = {
+    gurus: [],
+    kelases: [],
+    mapels: [],
+    materis: [],
+    siswas: []
+  };
 
-  document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("tanggal").valueAsDate = new Date();
-    document.getElementById("tglAwalSiswa").valueAsDate = new Date();
-    document.getElementById("tglAkhirSiswa").valueAsDate = new Date();
-    document.getElementById("tglAwalGuru").valueAsDate = new Date();
-    document.getElementById("tglAkhirGuru").valueAsDate = new Date();
-    loadInitialData();
-  });
+  // Inisialisasi saat halaman dibuka
+  document.addEventListener("DOMContentLoaded", function() {
+    var today = new Date().toISOString().split('T')[0];
+    document.getElementById('inpTanggal').value = today;
+    document.getElementById('rekapTglAwal').value = today;
+    document.getElementById('rekapTglAkhir').value = today;
+    document.getElementById('rekapGuruTglAwal').value = today;
+    document.getElementById('rekapGuruTglAkhir').value = today;
 
-  function openTab(tabId) {
-    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-    document.getElementById(tabId).classList.add('active');
-    event.currentTarget.classList.add('active');
-  }
-
-  function showLoading(show) {
-    document.getElementById("loading").style.display = show ? "block" : "none";
-  }
-
-  function loadInitialData() {
-    showLoading(true);
-    fetch(`${API_URL}?action=getInitialData`)
+    // Fetch Initial Data via GET
+    fetch(WEB_APP_URL + "?action=getInitialData")
       .then(res => res.json())
-      .then(res => {
-        showLoading(false);
-        if (res.status === 'success') {
-          masterMateris = (res.data.materis || []).map(m => {
-            let idMapel = String(m.idMapel || m.ID_Mapel || m.mapelId || m[0] || '');
-            let pokok = m.materiPokok || m.Materi_Pokok || m[1] || '';
-            let sub = m.subTopik || m.Sub_Topik || m[2] || '';
-
-            return {
-              rawIdMapel: idMapel.toUpperCase(),
-              materiPokok: pokok.trim(),
-              subTopik: sub.trim()
-            };
-          });
-
-          // Mengambil data siswa (dukung dataSiswa dan siswas)
-          masterSiswas = res.data.siswas || res.data.dataSiswa || [];
-
-          populateDropdown('guru', res.data.gurus, 'nip', 'nama');
-          populateDropdown('rekapGuruSelect', res.data.gurus, 'nip', 'nama');
-          populateDropdown('kelas', res.data.kelases, 'id', 'nama');
-          populateDropdown('rekapKelasSiswa', res.data.kelases, 'id', 'nama');
-          populateDropdown('mapel', res.data.mapels, 'id', 'nama');
+      .then(response => {
+        if (response && response.status === 'success') {
+          globalData = response.data;
+          populateDropdowns();
+        } else {
+          alert("Gagal memuat data awal.");
         }
       })
-      .catch(err => {
-        showLoading(false);
-        console.error("Error API:", err);
-      });
+      .catch(err => alert("Gagal koneksi ke Apps Script: " + err));
+  });
+
+  function populateDropdowns() {
+    var selectGuru = document.getElementById('inpGuru');
+    var selectRekapGuru = document.getElementById('rekapGuruSelect');
+    selectGuru.innerHTML = '<option value="">-- Pilih Guru --</option>';
+    selectRekapGuru.innerHTML = '<option value="">-- Pilih Guru --</option>';
+
+    globalData.gurus.forEach(function(g) {
+      selectGuru.innerHTML += `<option value="${g.nip}">${g.nama}</option>`;
+      selectRekapGuru.innerHTML += `<option value="${g.nip}">${g.nama}</option>`;
+    });
+
+    var selectKelas = document.getElementById('inpKelas');
+    var selectRekapKelas = document.getElementById('rekapKelasSelect');
+    selectKelas.innerHTML = '<option value="">-- Pilih Kelas --</option>';
+    selectRekapKelas.innerHTML = '<option value="">-- Pilih Kelas --</option>';
+
+    globalData.kelases.forEach(function(k) {
+      selectKelas.innerHTML += `<option value="${k.id}">${k.nama}</option>`;
+      selectRekapKelas.innerHTML += `<option value="${k.id}">${k.nama}</option>`;
+    });
+
+    var selectMapel = document.getElementById('inpMapel');
+    selectMapel.innerHTML = '<option value="">-- Pilih Mapel --</option>';
+    globalData.mapels.forEach(function(m) {
+      selectMapel.innerHTML += `<option value="${m.id}">${m.nama}</option>`;
+    });
   }
 
-  function populateDropdown(elemId, data, valKey, textKey) {
-    const select = document.getElementById(elemId);
-    select.innerHTML = `<option value="">-- Pilih ${elemId.toUpperCase()} --</option>`;
-    if (data && data.length > 0) {
-      data.forEach(item => {
-        const opt = document.createElement('option');
-        opt.value = item[valKey];
-        opt.textContent = item[textKey];
-        select.appendChild(opt);
-      });
-    }
-  }
+  function onKelasChange() {
+    var selectedKelas = document.getElementById('inpKelas').value;
+    var tbody = document.getElementById('tbodyPresensiSiswa');
+    tbody.innerHTML = '';
 
-  function onKelasOrMapelChange() {
-    const kelasSelect = document.getElementById('kelas');
-    const kelasVal = kelasSelect.value;
-    const kelasText = kelasSelect.options[kelasSelect.selectedIndex] ? kelasSelect.options[kelasSelect.selectedIndex].text : '';
-    const mapelId = document.getElementById('mapel').value;
-
-    const selectPokok = document.getElementById('materiPokok');
-    const selectSub = document.getElementById('subTopik');
-    
-    selectPokok.innerHTML = '<option value="">-- Pilih Materi Pokok --</option>';
-    selectSub.innerHTML = '<option value="">-- Pilih Materi Pokok Terlebih Dahulu --</option>';
-
-    if (mapelId) {
-      const selectedMapelClean = mapelId.toUpperCase().trim();
-      const filtered = masterMateris.filter(m => 
-        m.rawIdMapel === selectedMapelClean || 
-        m.rawIdMapel.startsWith(selectedMapelClean) ||
-        selectedMapelClean.startsWith(m.rawIdMapel)
-      );
-
-      const uniquePokok = [...new Set(filtered.map(m => m.materiPokok))].filter(Boolean);
-
-      if (uniquePokok.length > 0) {
-        uniquePokok.forEach(pokok => {
-          const opt = document.createElement('option');
-          opt.value = pokok;
-          opt.textContent = pokok;
-          selectPokok.appendChild(opt);
-        });
-      } else {
-        selectPokok.innerHTML = '<option value="">-- Belum Ada Materi (Klik + untuk Tambah) --</option>';
-      }
-    }
-
-    const areaPresensi = document.getElementById('areaPresensi');
-    if (!kelasVal) {
-      areaPresensi.innerHTML = '<p style="color:#6c757d;">Silakan pilih <b>Kelas</b> pada formulir di atas untuk menampilkan daftar siswa.</p>';
+    if (!selectedKelas) {
+      tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-4">Pilih kelas terlebih dahulu untuk menampilkan daftar siswa.</td></tr>';
       return;
     }
 
-    // PENCOCOKAN MULTI-Arah
-    const cVal = String(kelasVal).toUpperCase().trim();
-    const cText = String(kelasText).toUpperCase().trim();
-
-    const filteredSiswa = masterSiswas.filter(s => {
-      if (!s.kelasId) return false;
-      const sK = String(s.kelasId).toUpperCase().trim();
-      
-      const sKClean = sK.replace(/[^A-Z0-9]/g, '');
-      const valClean = cVal.replace(/[^A-Z0-9]/g, '');
-      const textClean = cText.replace(/[^A-Z0-9]/g, '');
-
-      return (
-        sK === cVal || 
-        sK === cText || 
-        sKClean === valClean || 
-        sKClean === textClean ||
-        valClean.includes(sKClean) ||
-        sKClean.includes(valClean) ||
-        textClean.includes(sKClean) ||
-        sKClean.includes(textClean)
-      );
+    var cleanSelected = cleanText(selectedKelas);
+    var filteredSiswa = globalData.siswas.filter(function(s) {
+      return cleanText(s.kelasId) === cleanSelected;
     });
 
     if (filteredSiswa.length === 0) {
-      areaPresensi.innerHTML = '<p style="color:#dc3545;">Tidak ada data siswa di kelas ini.</p>';
+      tbody.innerHTML = '<tr><td colspan="4" class="text-center text-warning py-4">Tidak ada data siswa untuk kelas ini.</td></tr>';
       return;
     }
 
-    let html = `<div style="overflow-x:auto;"><table><thead><tr><th>No</th><th>NIS</th><th>Nama Siswa</th><th style="text-align:center;">Status Presensi</th></tr></thead><tbody>`;
-    filteredSiswa.forEach((s, idx) => {
-      html += `<tr>
-        <td>${idx + 1}</td>
-        <td>${s.nis}</td>
-        <td>${s.nama}</td>
-        <td>
-          <div class="radio-group">
-            <label><input type="radio" name="presensi_${s.nis}" value="H" checked> H</label>
-            <label><input type="radio" name="presensi_${s.nis}" value="I"> I</label>
-            <label><input type="radio" name="presensi_${s.nis}" value="S"> S</label>
-            <label><input type="radio" name="presensi_${s.nis}" value="A"> A</label>
-          </div>
-        </td>
-      </tr>`;
-    });
-    html += `</tbody></table></div>`;
-    areaPresensi.innerHTML = html;
-  }
+    filteredSiswa.forEach(function(s, idx) {
+      var row = `
+        <tr>
+          <td class="text-center">${idx + 1}</td>
+          <td>${s.nis}</td>
+          <td>${s.nama}</td>
+          <td class="text-center">
+            <input type="hidden" class="siswa-nis" value="${s.nis}">
+            <input type="hidden" class="siswa-nama" value="${s.nama}">
+            <div class="btn-group btn-group-sm" role="group">
+              <input type="radio" class="btn-check" name="status_${s.nis}" id="st_h_${s.nis}" value="H" checked>
+              <label class="btn btn-outline-success" for="st_h_${s.nis}">H</label>
 
-  function onMateriPokokChange() {
-    const mapelId = document.getElementById('mapel').value;
-    const selectedPokok = document.getElementById('materiPokok').value;
-    const selectSub = document.getElementById('subTopik');
+              <input type="radio" class="btn-check" name="status_${s.nis}" id="st_i_${s.nis}" value="I">
+              <label class="btn btn-outline-info" for="st_i_${s.nis}">I</label>
 
-    selectSub.innerHTML = '<option value="">-- Pilih Sub-Topik --</option>';
+              <input type="radio" class="btn-check" name="status_${s.nis}" id="st_s_${s.nis}" value="S">
+              <label class="btn btn-outline-warning" for="st_s_${s.nis}">S</label>
 
-    if (selectedPokok && mapelId) {
-      const selectedMapelClean = mapelId.toUpperCase().trim();
-      const filteredSubs = masterMateris.filter(m => {
-        const isMapelMatch = m.rawIdMapel === selectedMapelClean || 
-                             m.rawIdMapel.startsWith(selectedMapelClean) ||
-                             selectedMapelClean.startsWith(m.rawIdMapel);
-        return isMapelMatch && m.materiPokok === selectedPokok;
-      });
-
-      const uniqueSubs = [...new Set(filteredSubs.map(m => m.subTopik))].filter(Boolean);
-
-      if (uniqueSubs.length > 0) {
-        uniqueSubs.forEach(sub => {
-          const opt = document.createElement('option');
-          opt.value = sub;
-          opt.textContent = sub;
-          selectSub.appendChild(opt);
-        });
-      } else {
-        selectSub.innerHTML = '<option value="-">- (Tanpa Sub-Topik)</option>';
-      }
-    }
-  }
-
-  function bukaModalMateri() {
-    const mapelSelect = document.getElementById('mapel');
-    const mapelId = mapelSelect.value;
-
-    if (!mapelId) {
-      alert("Silakan pilih Mata Pelajaran terlebih dahulu!");
-      return;
-    }
-
-    const mapelNama = mapelSelect.options[mapelSelect.selectedIndex].text;
-    document.getElementById('modalNamaMapel').value = mapelNama;
-    
-    const currentPokok = document.getElementById('materiPokok').value;
-    document.getElementById('modalMateriPokok').value = currentPokok || '';
-    document.getElementById('modalSubTopik').value = '';
-
-    document.getElementById('modalMateri').style.display = 'block';
-  }
-
-  function tutupModalMateri() {
-    document.getElementById('modalMateri').style.display = 'none';
-  }
-
-  function simpanMateriBaru() {
-    const mapelId = document.getElementById('mapel').value;
-    const materiPokok = document.getElementById('modalMateriPokok').value.trim();
-    const subTopik = document.getElementById('modalSubTopik').value.trim();
-
-    if (!materiPokok) {
-      alert("Materi Pokok / Bab wajib diisi!");
-      return;
-    }
-
-    showLoading(true);
-    tutupModalMateri();
-
-    const payload = {
-      action: "addMateri",
-      mapelId: mapelId,
-      materiPokok: materiPokok,
-      subTopik: subTopik || "-"
-    };
-
-    fetch(API_URL, {
-      method: "POST",
-      body: JSON.stringify(payload)
-    })
-    .then(res => res.json())
-    .then(res => {
-      showLoading(false);
-      if (res.status === 'success') {
-        alert("Materi Baru Berhasil Ditambahkan!");
-        
-        masterMateris.push({
-          rawIdMapel: mapelId.toUpperCase().trim(),
-          materiPokok: materiPokok,
-          subTopik: subTopik || "-"
-        });
-
-        onKelasOrMapelChange();
-        document.getElementById('materiPokok').value = materiPokok;
-        onMateriPokokChange();
-        if (subTopik) document.getElementById('subTopik').value = subTopik;
-      } else {
-        alert("Gagal menambah materi: " + res.message);
-      }
-    })
-    .catch(err => {
-      showLoading(false);
-      alert("Error simpan materi: " + err);
+              <input type="radio" class="btn-check" name="status_${s.nis}" id="st_a_${s.nis}" value="A">
+              <label class="btn btn-outline-danger" for="st_a_${s.nis}">A</label>
+            </div>
+          </td>
+        </tr>
+      `;
+      tbody.innerHTML += row;
     });
   }
 
-  function hitungJP() {
-    const jamKeVal = document.getElementById('jamKe').value;
-    const matches = jamKeVal.match(/\d+/g);
-    if (matches && matches.length >= 2) {
-      const awal = parseInt(matches[0]);
-      const akhir = parseInt(matches[matches.length - 1]);
-      document.getElementById('totalJP').value = (akhir - awal + 1);
-    } else if (matches && matches.length === 1) {
-      document.getElementById('totalJP').value = 1;
-    } else {
-      document.getElementById('totalJP').value = '';
-    }
+  function setAllStatus(status) {
+    var radios = document.querySelectorAll(`input[type="radio"][value="${status}"]`);
+    radios.forEach(function(r) {
+      r.checked = true;
+    });
   }
 
-  function loadRekapSiswa() {
-    const kelasSelect = document.getElementById('rekapKelasSiswa');
-    const kelasId = kelasSelect.value;
-    const kelasTeks = kelasSelect.options[kelasSelect.selectedIndex].text;
-    const tglAwal = document.getElementById('tglAwalSiswa').value;
-    const tglAkhir = document.getElementById('tglAkhirSiswa').value;
-
-    if (!kelasId) return alert("Pilih kelas terlebih dahulu!");
-
-    document.getElementById('subKopSiswa').innerText = `Kelas: ${kelasTeks} | Periode: ${tglAwal} s/d ${tglAkhir}`;
-
-    showLoading(true);
-    fetch(`${API_URL}?action=getRekapSiswa&kelasId=${encodeURIComponent(kelasId)}&tglAwal=${tglAwal}&tglAkhir=${tglAkhir}`)
-      .then(res => res.json())
-      .then(res => {
-        showLoading(false);
-        if (res.status === 'success') {
-          let html = `<div style="overflow-x:auto;"><table><thead><tr><th>No</th><th>NIS</th><th>Nama Siswa</th><th style="text-align:center;">Hadir (H)</th><th style="text-align:center;">Izin (I)</th><th style="text-align:center;">Sakit (S)</th><th style="text-align:center;">Alfa (A)</th></tr></thead><tbody>`;
-          res.detailSiswa.forEach((s, idx) => {
-            html += `<tr><td style="text-align:center;">${idx + 1}</td><td>${s.nis}</td><td>${s.nama}</td><td style="text-align:center;">${s.h}</td><td style="text-align:center;">${s.i}</td><td style="text-align:center;">${s.s}</td><td style="text-align:center;">${s.a}</td></tr>`;
-          });
-          html += `</tbody></table></div>`;
-          document.getElementById('tabelRekapSiswaArea').innerHTML = html;
-        }
-      });
-  }
-
-  function loadRekapGuru() {
-    const guruSelect = document.getElementById('rekapGuruSelect');
-    const nip = guruSelect.value;
-    const guruTeks = guruSelect.options[guruSelect.selectedIndex].text;
-    const tglAwal = document.getElementById('tglAwalGuru').value;
-    const tglAkhir = document.getElementById('tglAkhirGuru').value;
-
-    if (!nip) return alert("Pilih guru terlebih dahulu!");
-
-    document.getElementById('subKopGuru').innerText = `Nama Guru: ${guruTeks} | Periode: ${tglAwal} s/d ${tglAkhir}`;
-
-    showLoading(true);
-    fetch(`${API_URL}?action=getRekapGuru&nip=${encodeURIComponent(nip)}&tglAwal=${tglAwal}&tglAkhir=${tglAkhir}`)
-      .then(res => res.json())
-      .then(res => {
-        showLoading(false);
-        if (res.status === 'success') {
-          let html = `<p><b>Total Sesi Mengajar:</b> ${res.statistik.totalSesi} KBM | <b>Total Jam Pelajaran:</b> ${res.statistik.totalJP} JP</p>`;
-          html += `<div style="overflow-x:auto;"><table><thead><tr><th>No</th><th>Tanggal</th><th>Kelas</th><th>Mapel</th><th>Jam Ke</th><th>Materi & Sub-Topik</th><th>Catatan KBM</th></tr></thead><tbody>`;
-          res.jurnal.forEach((j, idx) => {
-            html += `<tr><td style="text-align:center;">${idx + 1}</td><td>${j.tanggal}</td><td>${j.kelas}</td><td>${j.mapel}</td><td>${j.jamKe}</td><td>${j.materi}</td><td>${j.catatan || '-'}</td></tr>`;
-          });
-          html += `</tbody></table></div>`;
-          document.getElementById('tabelRekapGuruArea').innerHTML = html;
-        }
-      });
-  }
-
-  function cetakLaporan(tabId) {
-    openTab(tabId);
-    window.print();
-  }
-
-  document.getElementById("jurnalForm").addEventListener("submit", function(e) {
+  // Submit Simpan Jurnal & Presensi (POST)
+  document.getElementById('formJurnal').addEventListener('submit', function(e) {
     e.preventDefault();
-    showLoading(true);
 
-    const kelasSelect = document.getElementById("kelas");
-    const kelasId = kelasSelect.value;
-    const kelasText = kelasSelect.options[kelasSelect.selectedIndex].text;
+    var btnSimpan = document.getElementById('btnSimpan');
+    btnSimpan.disabled = true;
+    btnSimpan.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Menyimpan...';
 
-    const cVal = String(kelasId).toUpperCase().trim();
-    const cText = String(kelasText).toUpperCase().trim();
+    var listPresensi = [];
+    var rowsSiswa = document.querySelectorAll('#tbodyPresensiSiswa tr');
 
-    const filteredSiswa = masterSiswas.filter(s => {
-      if (!s.kelasId) return false;
-      const sK = String(s.kelasId).toUpperCase().trim();
-      const sKClean = sK.replace(/[^A-Z0-9]/g, '');
-      const valClean = cVal.replace(/[^A-Z0-9]/g, '');
-      const textClean = cText.replace(/[^A-Z0-9]/g, '');
+    rowsSiswa.forEach(function(tr) {
+      var nisEl = tr.querySelector('.siswa-nis');
+      var namaEl = tr.querySelector('.siswa-nama');
+      if (nisEl && namaEl) {
+        var nis = nisEl.value;
+        var nama = namaEl.value;
+        var checkedRadio = tr.querySelector(`input[name="status_${nis}"]:checked`);
+        var statusVal = checkedRadio ? checkedRadio.value : 'H';
 
-      return (
-        sK === cVal || sK === cText || 
-        sKClean === valClean || sKClean === textClean ||
-        valClean.includes(sKClean) || sKClean.includes(valClean) ||
-        textClean.includes(sKClean) || sKClean.includes(textClean)
-      );
-    });
-    
-    const presensiData = filteredSiswa.map(s => {
-      const selectedStatus = document.querySelector(`input[name="presensi_${s.nis}"]:checked`);
-      return {
-        nis: s.nis,
-        nama: s.nama,
-        status: selectedStatus ? selectedStatus.value : 'H'
-      };
+        listPresensi.push({
+          nis: nis,
+          nama: nama,
+          status: statusVal
+        });
+      }
     });
 
-    const materiPokokVal = document.getElementById("materiPokok").value;
-    const subTopikVal = document.getElementById("subTopik").value;
-    
-    let gabunganMateri = materiPokokVal;
-    if (subTopikVal && subTopikVal !== '-') {
-      gabunganMateri = `${materiPokokVal} - ${subTopikVal}`;
-    }
-
-    const payload = {
-      tanggal: document.getElementById("tanggal").value,
-      nip: document.getElementById("guru").value,
-      kelasId: kelasId,
-      mapelId: document.getElementById("mapel").value,
-      materiId: gabunganMateri,
-      jamKe: document.getElementById("jamKe").value,
-      totalJP: document.getElementById("totalJP").value,
-      catatan: document.getElementById("catatan").value,
-      presensi: presensiData
+    var payload = {
+      action: "simpanJurnal",
+      tanggal: document.getElementById('inpTanggal').value,
+      nip: document.getElementById('inpGuru').value,
+      kelasId: document.getElementById('inpKelas').value,
+      mapelId: document.getElementById('inpMapel').value,
+      jamKe: document.getElementById('inpJamKe').value,
+      totalJP: document.getElementById('inpTotalJP').value,
+      materiId: document.getElementById('inpMateri').value,
+      catatan: document.getElementById('inpCatatan').value,
+      presensi: listPresensi
     };
 
-    fetch(API_URL, {
+    fetch(WEB_APP_URL, {
       method: "POST",
       body: JSON.stringify(payload)
     })
     .then(res => res.json())
     .then(res => {
-      showLoading(false);
-      if (res.status === 'success') {
-        alert("Data Jurnal & Presensi Berhasil Disimpan!");
-        document.getElementById("jurnalForm").reset();
-        document.getElementById('areaPresensi').innerHTML = '<p style="color:#6c757d;">Silakan pilih <b>Kelas</b> pada formulir di atas untuk menampilkan daftar siswa.</p>';
-      } else {
-        alert("Gagal menyimpan: " + res.message);
-      }
+      btnSimpan.disabled = false;
+      btnSimpan.innerHTML = '<i class="fa-solid fa-floppy-disk me-1"></i> Simpan Jurnal & Presensi';
+      alert(res.message || "Data berhasil disimpan!");
+      document.getElementById('inpMateri').value = '';
+      document.getElementById('inpCatatan').value = '';
     })
     .catch(err => {
-      showLoading(false);
-      alert("Error simpan data: " + err);
+      btnSimpan.disabled = false;
+      btnSimpan.innerHTML = '<i class="fa-solid fa-floppy-disk me-1"></i> Simpan Jurnal & Presensi';
+      alert("Gagal menyimpan: " + err);
     });
   });
+
+  // Load Rekap Siswa (GET)
+  function loadRekapSiswa() {
+    var kelasId = encodeURIComponent(document.getElementById('rekapKelasSelect').value);
+    var tglAwal = document.getElementById('rekapTglAwal').value;
+    var tglAkhir = document.getElementById('rekapTglAkhir').value;
+
+    if (!kelasId) {
+      alert("Silakan pilih kelas terlebih dahulu!");
+      return;
+    }
+
+    var tbody = document.getElementById('tbodyRekapSiswa');
+    tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4"><span class="spinner-border spinner-border-sm me-2"></span>Memuat data rekap...</td></tr>';
+
+    var url = `${WEB_APP_URL}?action=getRekapSiswa&kelasId=${kelasId}&tglAwal=${tglAwal}&tglAkhir=${tglAkhir}`;
+
+    fetch(url)
+      .then(res => res.json())
+      .then(renderRekapSiswa)
+      .catch(err => {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-danger py-4">Gagal memuat rekap.</td></tr>';
+        alert("Error: " + err);
+      });
+  }
+
+  function renderRekapSiswa(response) {
+    var tbody = document.getElementById('tbodyRekapSiswa');
+    tbody.innerHTML = '';
+
+    if (!response || response.status !== 'success' || !response.detailSiswa || response.detailSiswa.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">Tidak ada data rekap siswa pada rentang tanggal tersebut.</td></tr>';
+      return;
+    }
+
+    response.detailSiswa.forEach(function(s, idx) {
+      var row = `
+        <tr>
+          <td class="text-center">${idx + 1}</td>
+          <td>${s.nis}</td>
+          <td>${s.nama}</td>
+          <td class="text-center fw-bold text-success">${s.h}</td>
+          <td class="text-center fw-bold text-info">${s.i}</td>
+          <td class="text-center fw-bold text-warning">${s.s}</td>
+          <td class="text-center fw-bold text-danger">${s.a}</td>
+        </tr>
+      `;
+      tbody.innerHTML += row;
+    });
+  }
+
+  // Load Rekap Guru (GET)
+  function loadRekapGuru() {
+    var nip = encodeURIComponent(document.getElementById('rekapGuruSelect').value);
+    var tglAwal = document.getElementById('rekapGuruTglAwal').value;
+    var tglAkhir = document.getElementById('rekapGuruTglAkhir').value;
+
+    if (!nip) {
+      alert("Silakan pilih guru terlebih dahulu!");
+      return;
+    }
+
+    var tbody = document.getElementById('tbodyRekapGuru');
+    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4"><span class="spinner-border spinner-border-sm me-2"></span>Memuat data KBM...</td></tr>';
+    document.getElementById('statGuruContainer').style.display = 'none';
+
+    var url = `${WEB_APP_URL}?action=getRekapGuru&nip=${nip}&tglAwal=${tglAwal}&tglAkhir=${tglAkhir}`;
+
+    fetch(url)
+      .then(res => res.json())
+      .then(renderRekapGuru)
+      .catch(err => {
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger py-4">Gagal memuat data guru.</td></tr>';
+        alert("Error: " + err);
+      });
+  }
+
+  function renderRekapGuru(response) {
+    var tbody = document.getElementById('tbodyRekapGuru');
+    tbody.innerHTML = '';
+
+    if (!response || response.status !== 'success' || !response.jurnal || response.jurnal.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">Tidak ada rekaman KBM pada rentang tanggal tersebut.</td></tr>';
+      return;
+    }
+
+    document.getElementById('statTotalSesi').innerText = response.statistik.totalSesi || 0;
+    document.getElementById('statTotalJP').innerText = response.statistik.totalJP || 0;
+    document.getElementById('statGuruContainer').style.display = 'flex';
+
+    response.jurnal.forEach(function(j, idx) {
+      var row = `
+        <tr>
+          <td class="text-center">${idx + 1}</td>
+          <td>${j.tanggal}</td>
+          <td>${j.kelas}</td>
+          <td>${j.mapel}</td>
+          <td class="text-center">${j.jamKe}</td>
+          <td>${j.materi}</td>
+          <td>${j.catatan || '-'}</td>
+          <td class="text-center fw-bold">${j.totalJP}</td>
+        </tr>
+      `;
+      tbody.innerHTML += row;
+    });
+  }
+
+  function cleanText(val) {
+    if (!val) return "";
+    return String(val).toLowerCase().replace(/[^a-z0-9]/g, '');
+  }
 </script>
 
 </body>
