@@ -4,580 +4,451 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SIM Jurnal KBM & Presensi Siswa</title>
-  <!-- Bootstrap 5 CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- FontAwesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    .nav-pills .nav-link { color: #495057; font-weight: 500; border-radius: 8px; padding: 10px 20px; }
-    .nav-pills .nav-link.active { background-color: #0d6efd; color: #fff; }
-    .card { border-radius: 12px; border: none; }
-    .table-responsive { max-height: 500px; overflow-y: auto; }
-    .sticky-top-header { position: sticky; top: 0; z-index: 2; background-color: #f8f9fa; }
-  </style>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-slate-100 text-slate-800 min-h-screen">
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
-  <div class="container-fluid container">
-    <span class="navbar-brand fw-bold mb-0 h1">
-      <i class="fa-solid fa-book-bookmark me-2"></i>SIM Jurnal KBM & Presensi Siswa
-    </span>
-  </div>
-</nav>
-
-<div class="container pb-5">
-  <!-- Navigasi Tab -->
-  <ul class="nav nav-pills mb-4 justify-content-center bg-white p-2 rounded shadow-sm" id="mainTab" role="tablist">
-    <li class="nav-item" role="presentation">
-      <button class="nav-link active" id="tab-input-tab" data-bs-toggle="pill" data-bs-target="#tab-input" type="button" role="tab">
-        <i class="fa-solid fa-pen-to-square me-1"></i> Input Jurnal & Presensi
-      </button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="tab-rekap-siswa-tab" data-bs-toggle="pill" data-bs-target="#tab-rekap-siswa" type="button" role="tab">
-        <i class="fa-solid fa-user-check me-1"></i> Rekap Presensi Siswa
-      </button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="tab-rekap-guru-tab" data-bs-toggle="pill" data-bs-target="#tab-rekap-guru" type="button" role="tab">
-        <i class="fa-solid fa-clipboard-user me-1"></i> Rekap KBM Guru
-      </button>
-    </li>
-  </ul>
-
-  <!-- Konten Tab -->
-  <div class="tab-content" id="mainTabContent">
-
-    <!-- TAB 1: INPUT JURNAL & PRESENSI -->
-    <div class="tab-pane fade show active" id="tab-input" role="tabpanel">
-      <form id="formJurnal">
-        <div class="row">
-          <!-- Form Informasi KBM -->
-          <div class="col-md-5 mb-4">
-            <div class="card shadow-sm h-100">
-              <div class="card-header bg-white fw-bold py-3">
-                <i class="fa-solid fa-circle-info text-primary me-2"></i>Informasi Pembelajaran
-              </div>
-              <div class="card-body">
-                <div class="mb-3">
-                  <label class="form-label fw-semibold">Tanggal</label>
-                  <input type="date" class="form-control" id="inpTanggal" required>
-                </div>
-                <div class="mb-3">
-                  <label class="form-label fw-semibold">Guru / Pengajar</label>
-                  <select class="form-select" id="inpGuru" required>
-                    <option value="">-- Pilih Guru --</option>
-                  </select>
-                </div>
-                <div class="mb-3">
-                  <label class="form-label fw-semibold">Kelas</label>
-                  <select class="form-select" id="inpKelas" onchange="onKelasChange()" required>
-                    <option value="">-- Pilih Kelas --</option>
-                  </select>
-                </div>
-                <div class="mb-3">
-                  <label class="form-label fw-semibold">Mata Pelajaran</label>
-                  <select class="form-select" id="inpMapel" required>
-                    <option value="">-- Pilih Mapel --</option>
-                  </select>
-                </div>
-                <div class="row">
-                  <div class="col-6 mb-3">
-                    <label class="form-label fw-semibold">Jam Ke-</label>
-                    <input type="text" class="form-control" id="inpJamKe" placeholder="1-2" required>
-                  </div>
-                  <div class="col-6 mb-3">
-                    <label class="form-label fw-semibold">Total JP</label>
-                    <input type="number" class="form-control" id="inpTotalJP" value="2" min="1" required>
-                  </div>
-                </div>
-                <div class="mb-3">
-                  <label class="form-label fw-semibold">Materi / Sub Materi</label>
-                  <textarea class="form-control" id="inpMateri" rows="3" placeholder="Tuliskan materi pembelajaran..." required></textarea>
-                </div>
-                <div class="mb-3">
-                  <label class="form-label fw-semibold">Catatan / Hambatan (Opsional)</label>
-                  <textarea class="form-control" id="inpCatatan" rows="2" placeholder="Catatan kendala atau siswa khusus..."></textarea>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Form Tabel Presensi Siswa -->
-          <div class="col-md-7 mb-4">
-            <div class="card shadow-sm h-100">
-              <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-                <span class="fw-bold"><i class="fa-solid fa-users text-primary me-2"></i>Presensi Siswa</span>
-                <div>
-                  <button type="button" class="btn btn-sm btn-outline-success" onclick="setAllStatus('H')">
-                    <i class="fa-solid fa-check-double me-1"></i> Set Semua Hadir
-                  </button>
-                </div>
-              </div>
-              <div class="card-body p-0">
-                <div class="table-responsive">
-                  <table class="table table-hover table-striped align-middle mb-0">
-                    <thead class="table-light sticky-top-header">
-                      <tr>
-                        <th style="width: 50px;" class="text-center">No</th>
-                        <th>NIS</th>
-                        <th>Nama Siswa</th>
-                        <th class="text-center" style="width: 210px;">Status Presensi</th>
-                      </tr>
-                    </thead>
-                    <tbody id="tbodyPresensiSiswa">
-                      <tr>
-                        <td colspan="4" class="text-center text-muted py-5">Pilih kelas terlebih dahulu untuk menampilkan daftar siswa.</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-              <div class="card-footer bg-white text-end py-3">
-                <button type="submit" class="btn btn-primary px-4 fw-semibold" id="btnSimpan">
-                  <i class="fa-solid fa-floppy-disk me-1"></i> Simpan Jurnal & Presensi
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </form>
-    </div>
-
-    <!-- TAB 2: REKAP PRESENSI SISWA -->
-    <div class="tab-pane fade" id="tab-rekap-siswa" role="tabpanel">
-      <div class="card shadow-sm mb-4">
-        <div class="card-body">
-          <div class="row g-3 align-items-end">
-            <div class="col-md-3">
-              <label class="form-label fw-semibold">Pilih Kelas</label>
-              <select class="form-select" id="rekapKelasSelect">
-                <option value="">-- Pilih Kelas --</option>
-              </select>
-            </div>
-            <div class="col-md-3">
-              <label class="form-label fw-semibold">Tanggal Awal</label>
-              <input type="date" class="form-control" id="rekapTglAwal">
-            </div>
-            <div class="col-md-3">
-              <label class="form-label fw-semibold">Tanggal Akhir</label>
-              <input type="date" class="form-control" id="rekapTglAkhir">
-            </div>
-            <div class="col-md-3">
-              <button type="button" class="btn btn-primary w-100 fw-semibold" onclick="loadRekapSiswa()">
-                <i class="fa-solid fa-magnifying-glass me-1"></i> Tampilkan Rekap
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card shadow-sm">
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-bordered table-hover align-middle mb-0">
-              <thead class="table-primary text-center">
-                <tr>
-                  <th style="width: 50px;">No</th>
-                  <th>NIS</th>
-                  <th>Nama Siswa</th>
-                  <th style="width: 90px;" class="bg-success text-white">Hadir (H)</th>
-                  <th style="width: 90px;" class="bg-info text-white">Izin (I)</th>
-                  <th style="width: 90px;" class="bg-warning text-dark">Sakit (S)</th>
-                  <th style="width: 90px;" class="bg-danger text-white">Alpha (A)</th>
-                </tr>
-              </thead>
-              <tbody id="tbodyRekapSiswa">
-                <tr>
-                  <td colspan="7" class="text-center text-muted py-5">Silakan tentukan kelas dan rentang tanggal di atas.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+  <!-- Header -->
+  <header class="bg-indigo-700 text-white shadow-md py-4 px-6">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <h1 class="text-xl font-bold">SIM Jurnal KBM & Presensi</h1>
+      <div id="loadingMaster" class="text-xs bg-indigo-800 px-3 py-1 rounded-full flex items-center gap-2">
+        <span class="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></span>
+        <span>Menghubungkan ke Server...</span>
       </div>
     </div>
+  </header>
 
-    <!-- TAB 3: REKAP KBM GURU -->
-    <div class="tab-pane fade" id="tab-rekap-guru" role="tabpanel">
-      <div class="card shadow-sm mb-4">
-        <div class="card-body">
-          <div class="row g-3 align-items-end">
-            <div class="col-md-3">
-              <label class="form-label fw-semibold">Pilih Guru</label>
-              <select class="form-select" id="rekapGuruSelect">
+  <!-- Content -->
+  <main class="max-w-6xl mx-auto p-4 sm:p-6 space-y-6">
+    
+    <!-- URL Configuration Box (Opsional: Jika belum di-hardcode) -->
+    <div id="urlConfigBox" class="bg-amber-50 border border-amber-200 p-4 rounded-xl text-xs space-y-2">
+      <label class="font-bold text-amber-900 block">URL Web App Google Apps Script:</label>
+      <div class="flex gap-2">
+        <input type="text" id="scriptUrlInput" placeholder="https://script.google.com/macros/s/AKfycbyEf-WOvNqH9q8GqikyrS9Mx0d8pcU07R5eVKjhw0nDXuCdpil2oZ95Jbqx2T15QdwnXQ/exec" 
+          class="w-full p-2 border rounded-lg font-mono text-xs">
+        <button onclick="saveScriptUrl()" class="bg-amber-700 text-white px-4 py-2 rounded-lg font-semibold">Simpan</button>
+      </div>
+      <p class="text-amber-700">*Masukkan URL Web App hasil Deploy Google Apps Script Anda (AKSES: Anyone / Siapa Saja).</p>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="flex border-b border-slate-300 gap-2">
+      <button onclick="switchTab('input')" id="tabBtnInput" class="py-2 px-4 font-semibold text-indigo-600 border-b-2 border-indigo-600">
+        Input Jurnal & Presensi
+      </button>
+      <button onclick="switchTab('rekapSiswa')" id="tabBtnRekapSiswa" class="py-2 px-4 font-semibold text-slate-500 hover:text-indigo-600">
+        Rekap Presensi Siswa
+      </button>
+      <button onclick="switchTab('rekapGuru')" id="tabBtnRekapGuru" class="py-2 px-4 font-semibold text-slate-500 hover:text-indigo-600">
+        Rekap Jurnal Guru
+      </button>
+    </div>
+
+    <!-- Alert Box -->
+    <div id="alertBox" class="hidden p-4 rounded-lg text-sm font-medium"></div>
+
+    <!-- TAB 1: FORM INPUT JURNAL & PRESENSI -->
+    <section id="tabInput" class="space-y-6">
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+        <h2 class="text-lg font-bold mb-4 text-slate-700">Form Jurnal Kegiatan Belajar Mengajar</h2>
+        
+        <form id="formJurnal" onsubmit="submitJurnal(event)" class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal</label>
+              <input type="date" id="inputTanggal" required class="w-full p-2 border border-slate-300 rounded-lg text-sm">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Guru</label>
+              <select id="selectGuru" required class="w-full p-2 border border-slate-300 rounded-lg text-sm">
                 <option value="">-- Pilih Guru --</option>
               </select>
             </div>
-            <div class="col-md-3">
-              <label class="form-label fw-semibold">Tanggal Awal</label>
-              <input type="date" class="form-control" id="rekapGuruTglAwal">
-            </div>
-            <div class="col-md-3">
-              <label class="form-label fw-semibold">Tanggal Akhir</label>
-              <input type="date" class="form-control" id="rekapGuruTglAkhir">
-            </div>
-            <div class="col-md-3">
-              <button type="button" class="btn btn-primary w-100 fw-semibold" onclick="loadRekapGuru()">
-                <i class="fa-solid fa-magnifying-glass me-1"></i> Tampilkan Rekap
-              </button>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Kelas</label>
+              <select id="selectKelas" onchange="renderDaftarSiswa()" required class="w-full p-2 border border-slate-300 rounded-lg text-sm">
+                <option value="">-- Pilih Kelas --</option>
+              </select>
             </div>
           </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Mata Pelajaran</label>
+              <select id="selectMapel" onchange="filterMateri()" required class="w-full p-2 border border-slate-300 rounded-lg text-sm">
+                <option value="">-- Pilih Mapel --</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Jam Ke- (Misal: 1-2 atau 1-3)</label>
+              <input type="text" id="inputJamKe" placeholder="Contoh: 1-2" required class="w-full p-2 border border-slate-300 rounded-lg text-sm">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Materi Pokok / Sub Topik</label>
+              <select id="selectMateri" required class="w-full p-2 border border-slate-300 rounded-lg text-sm">
+                <option value="">-- Pilih Materi --</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Catatan Pelaksanaan KBM</label>
+            <textarea id="inputCatatan" rows="2" placeholder="Catatan kelas, hambatan, dll." class="w-full p-2 border border-slate-300 rounded-lg text-sm"></textarea>
+          </div>
+
+          <!-- Tabel Presensi Siswa -->
+          <div class="pt-4 border-t border-slate-200">
+            <h3 class="text-md font-bold mb-2 text-slate-700">Presensi Kehadiran Siswa</h3>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm border-collapse">
+                <thead>
+                  <tr class="bg-slate-100 text-slate-600 text-xs uppercase">
+                    <th class="p-2 border">NIS</th>
+                    <th class="p-2 border">Nama Siswa</th>
+                    <th class="p-2 border text-center">Status (H / S / I / A)</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodyPresensi">
+                  <tr><td colspan="3" class="p-4 text-center text-slate-400">Pilih kelas terlebih dahulu.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="flex justify-end pt-4">
+            <button type="submit" id="btnSubmit" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition">
+              Simpan Jurnal & Presensi
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- TAB 2: REKAP PRESENSI SISWA -->
+    <section id="tabRekapSiswa" class="hidden space-y-4">
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
+        <h2 class="text-lg font-bold text-slate-700">Rekap Presensi Siswa Per Kelas</h2>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <select id="rekapKelasId" class="p-2 border border-slate-300 rounded-lg text-sm">
+            <option value="">-- Pilih Kelas --</option>
+          </select>
+          <input type="date" id="rekapSiswaTglAwal" class="p-2 border border-slate-300 rounded-lg text-sm">
+          <input type="date" id="rekapSiswaTglAkhir" class="p-2 border border-slate-300 rounded-lg text-sm">
+          <button onclick="fetchRekapSiswa()" class="bg-indigo-600 text-white rounded-lg font-semibold text-sm py-2">Tampilkan Rekap</button>
+        </div>
+
+        <div class="overflow-x-auto pt-2">
+          <table class="w-full text-left text-sm border-collapse">
+            <thead>
+              <tr class="bg-slate-100 text-slate-600 text-xs uppercase">
+                <th class="p-2 border">NIS</th>
+                <th class="p-2 border">Nama</th>
+                <th class="p-2 border text-center">Hadir (H)</th>
+                <th class="p-2 border text-center">Sakit (S)</th>
+                <th class="p-2 border text-center">Izin (I)</th>
+                <th class="p-2 border text-center">Alpa (A)</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyRekapSiswa">
+              <tr><td colspan="6" class="p-4 text-center text-slate-400">Silakan tentukan filter dan klik Tampilkan Rekap.</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
+    </section>
 
-      <!-- Ringkasan Statistik -->
-      <div class="row mb-4" id="statGuruContainer" style="display: none;">
-        <div class="col-md-6 mb-2">
-          <div class="card bg-primary text-white shadow-sm">
-            <div class="card-body text-center py-3">
-              <div class="small text-uppercase">Total Sesi Pertemuan</div>
-              <div class="fs-2 fw-bold" id="statTotalSesi">0</div>
-            </div>
-          </div>
+    <!-- TAB 3: REKAP JURNAL GURU -->
+    <section id="tabRekapGuru" class="hidden space-y-4">
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
+        <h2 class="text-lg font-bold text-slate-700">Rekap Jurnal KBM Guru</h2>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <select id="rekapNip" class="p-2 border border-slate-300 rounded-lg text-sm">
+            <option value="">-- Pilih Guru --</option>
+          </select>
+          <input type="date" id="rekapGuruTglAwal" class="p-2 border border-slate-300 rounded-lg text-sm">
+          <input type="date" id="rekapGuruTglAkhir" class="p-2 border border-slate-300 rounded-lg text-sm">
+          <button onclick="fetchRekapGuru()" class="bg-indigo-600 text-white rounded-lg font-semibold text-sm py-2">Tampilkan Jurnal</button>
         </div>
-        <div class="col-md-6 mb-2">
-          <div class="card bg-success text-white shadow-sm">
-            <div class="card-body text-center py-3">
-              <div class="small text-uppercase">Total Jam Pelajaran (JP)</div>
-              <div class="fs-2 fw-bold" id="statTotalJP">0</div>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <div class="card shadow-sm">
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-bordered table-hover align-middle mb-0">
-              <thead class="table-light">
-                <tr>
-                  <th style="width: 50px;" class="text-center">No</th>
-                  <th style="width: 110px;">Tanggal</th>
-                  <th>Kelas</th>
-                  <th>Mapel</th>
-                  <th style="width: 80px;" class="text-center">Jam Ke</th>
-                  <th>Materi / Sub Materi</th>
-                  <th>Catatan</th>
-                  <th style="width: 70px;" class="text-center">JP</th>
-                </tr>
-              </thead>
-              <tbody id="tbodyRekapGuru">
-                <tr>
-                  <td colspan="8" class="text-center text-muted py-5">Silakan tentukan guru dan rentang tanggal di atas.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+        <div id="statGuru" class="hidden grid-cols-2 gap-4 bg-indigo-50 p-4 rounded-lg">
+          <div><span class="text-xs text-slate-500">Total Sesi Mengajar:</span> <b id="statSesi" class="text-indigo-700">0</b></div>
+          <div><span class="text-xs text-slate-500">Total Jam Pelajaran (JP):</span> <b id="statJP" class="text-indigo-700">0</b></div>
+        </div>
+
+        <div class="overflow-x-auto pt-2">
+          <table class="w-full text-left text-sm border-collapse">
+            <thead>
+              <tr class="bg-slate-100 text-slate-600 text-xs uppercase">
+                <th class="p-2 border">Tgl</th>
+                <th class="p-2 border">Kelas</th>
+                <th class="p-2 border">Mapel</th>
+                <th class="p-2 border">Jam Ke</th>
+                <th class="p-2 border">Total JP</th>
+                <th class="p-2 border">Materi & Catatan</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyRekapGuru">
+              <tr><td colspan="6" class="p-4 text-center text-slate-400">Silakan tentukan filter dan klik Tampilkan Jurnal.</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
-    </div>
+    </section>
+  </main>
 
-  </div>
-</div>
+  <script>
+    // MASUKKAN URL EXEC WEB APP APPS SCRIPT ANDA DI SINI
+    let SCRIPT_URL = localStorage.getItem('APPS_SCRIPT_URL') || '';
 
-<!-- Bootstrap 5 JS Bundle -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    let masterData = { gurus: [], kelases: [], mapels: [], materis: [], siswas: [] };
 
-<script>
-  // =========================================================================
-  // ⚠️ PASTEKAN URL WEB APP APPS SCRIPT-MU DI BAWAH INI:
-  // Contoh: "https://script.google.com/macros/s/AKfycbx.../exec"
-  // =========================================================================
-  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyEf-WOvNqH9q8GqikyrS9Mx0d8pcU07R5eVKjhw0nDXuCdpil2oZ95Jbqx2T15QdwnXQ/exec";
-
-  var globalData = {
-    gurus: [],
-    kelases: [],
-    mapels: [],
-    siswas: []
-  };
-
-  document.addEventListener("DOMContentLoaded", function() {
-    var today = new Date().toISOString().split('T')[0];
-    document.getElementById('inpTanggal').value = today;
-    document.getElementById('rekapTglAwal').value = today;
-    document.getElementById('rekapTglAkhir').value = today;
-    document.getElementById('rekapGuruTglAwal').value = today;
-    document.getElementById('rekapGuruTglAkhir').value = today;
-
-    // Fetch Data Master via Web App API
-    fetch(WEB_APP_URL + "?action=getInitialData")
-      .then(res => res.json())
-      .then(response => {
-        if (response && response.status === 'success') {
-          globalData = response.data;
-          populateDropdowns();
-        } else {
-          alert("Gagal memuat data master dari server.");
-        }
-      })
-      .catch(err => alert("Gagal terhubung ke Apps Script: " + err));
-  });
-
-  function populateDropdowns() {
-    var selectGuru = document.getElementById('inpGuru');
-    var selectRekapGuru = document.getElementById('rekapGuruSelect');
-    selectGuru.innerHTML = '<option value="">-- Pilih Guru --</option>';
-    selectRekapGuru.innerHTML = '<option value="">-- Pilih Guru --</option>';
-
-    if (globalData.gurus) {
-      globalData.gurus.forEach(function(g) {
-        selectGuru.innerHTML += `<option value="${g.nip}">${g.nama}</option>`;
-        selectRekapGuru.innerHTML += `<option value="${g.nip}">${g.nama}</option>`;
-      });
-    }
-
-    var selectKelas = document.getElementById('inpKelas');
-    var selectRekapKelas = document.getElementById('rekapKelasSelect');
-    selectKelas.innerHTML = '<option value="">-- Pilih Kelas --</option>';
-    selectRekapKelas.innerHTML = '<option value="">-- Pilih Kelas --</option>';
-
-    if (globalData.kelases) {
-      globalData.kelases.forEach(function(k) {
-        selectKelas.innerHTML += `<option value="${k.id}">${k.nama}</option>`;
-        selectRekapKelas.innerHTML += `<option value="${k.id}">${k.nama}</option>`;
-      });
-    }
-
-    var selectMapel = document.getElementById('inpMapel');
-    selectMapel.innerHTML = '<option value="">-- Pilih Mapel --</option>';
-    if (globalData.mapels) {
-      globalData.mapels.forEach(function(m) {
-        selectMapel.innerHTML += `<option value="${m.id}">${m.nama}</option>`;
-      });
-    }
-  }
-
-  function onKelasChange() {
-    var selectedKelas = document.getElementById('inpKelas').value;
-    var tbody = document.getElementById('tbodyPresensiSiswa');
-    tbody.innerHTML = '';
-
-    if (!selectedKelas) {
-      tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-5">Pilih kelas terlebih dahulu untuk menampilkan daftar siswa.</td></tr>';
-      return;
-    }
-
-    var cleanSelected = cleanText(selectedKelas);
-    var filteredSiswa = globalData.siswas ? globalData.siswas.filter(function(s) {
-      return cleanText(s.kelasId) === cleanSelected;
-    }) : [];
-
-    if (filteredSiswa.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="4" class="text-center text-warning py-5">Tidak ada data siswa untuk kelas ini.</td></tr>';
-      return;
-    }
-
-    filteredSiswa.forEach(function(s, idx) {
-      var row = `
-        <tr>
-          <td class="text-center">${idx + 1}</td>
-          <td>${s.nis}</td>
-          <td>${s.nama}</td>
-          <td class="text-center">
-            <input type="hidden" class="siswa-nis" value="${s.nis}">
-            <input type="hidden" class="siswa-nama" value="${s.nama}">
-            <div class="btn-group btn-group-sm" role="group">
-              <input type="radio" class="btn-check" name="status_${s.nis}" id="st_h_${s.nis}" value="H" checked>
-              <label class="btn btn-outline-success" for="st_h_${s.nis}">H</label>
-
-              <input type="radio" class="btn-check" name="status_${s.nis}" id="st_i_${s.nis}" value="I">
-              <label class="btn btn-outline-info" for="st_i_${s.nis}">I</label>
-
-              <input type="radio" class="btn-check" name="status_${s.nis}" id="st_s_${s.nis}" value="S">
-              <label class="btn btn-outline-warning" for="st_s_${s.nis}">S</label>
-
-              <input type="radio" class="btn-check" name="status_${s.nis}" id="st_a_${s.nis}" value="A">
-              <label class="btn btn-outline-danger" for="st_a_${s.nis}">A</label>
-            </div>
-          </td>
-        </tr>
-      `;
-      tbody.innerHTML += row;
-    });
-  }
-
-  function setAllStatus(status) {
-    var radios = document.querySelectorAll(`input[type="radio"][value="${status}"]`);
-    radios.forEach(function(r) {
-      r.checked = true;
-    });
-  }
-
-  // Form Submit Handler
-  document.getElementById('formJurnal').addEventListener('submit', function(e) {
-    e.preventDefault();
-
-    var btnSimpan = document.getElementById('btnSimpan');
-    btnSimpan.disabled = true;
-    btnSimpan.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Menyimpan...';
-
-    var listPresensi = [];
-    var rowsSiswa = document.querySelectorAll('#tbodyPresensiSiswa tr');
-
-    rowsSiswa.forEach(function(tr) {
-      var nisEl = tr.querySelector('.siswa-nis');
-      var namaEl = tr.querySelector('.siswa-nama');
-      if (nisEl && namaEl) {
-        var nis = nisEl.value;
-        var nama = namaEl.value;
-        var checkedRadio = tr.querySelector(`input[name="status_${nis}"]:checked`);
-        var statusVal = checkedRadio ? checkedRadio.value : 'H';
-
-        listPresensi.push({
-          nis: nis,
-          nama: nama,
-          status: statusVal
-        });
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('inputTanggal').valueAsDate = new Date();
+      if (SCRIPT_URL) {
+        document.getElementById('scriptUrlInput').value = SCRIPT_URL;
+        loadInitialData();
+      } else {
+        document.getElementById('loadingMaster').innerHTML = `<span class="w-2 h-2 bg-rose-400 rounded-full"></span><span>URL Belum Diset</span>`;
       }
     });
 
-    var payload = {
-      action: "simpanJurnal",
-      tanggal: document.getElementById('inpTanggal').value,
-      nip: document.getElementById('inpGuru').value,
-      kelasId: document.getElementById('inpKelas').value,
-      mapelId: document.getElementById('inpMapel').value,
-      jamKe: document.getElementById('inpJamKe').value,
-      totalJP: document.getElementById('inpTotalJP').value,
-      materiId: document.getElementById('inpMateri').value,
-      catatan: document.getElementById('inpCatatan').value,
-      presensi: listPresensi
-    };
-
-    fetch(WEB_APP_URL, {
-      method: "POST",
-      body: JSON.stringify(payload)
-    })
-    .then(res => res.json())
-    .then(res => {
-      btnSimpan.disabled = false;
-      btnSimpan.innerHTML = '<i class="fa-solid fa-floppy-disk me-1"></i> Simpan Jurnal & Presensi';
-      alert(res.message || "Data berhasil disimpan!");
-      document.getElementById('inpMateri').value = '';
-      document.getElementById('inpCatatan').value = '';
-    })
-    .catch(err => {
-      btnSimpan.disabled = false;
-      btnSimpan.innerHTML = '<i class="fa-solid fa-floppy-disk me-1"></i> Simpan Jurnal & Presensi';
-      alert("Gagal menyimpan data: " + err);
-    });
-  });
-
-  // Rekap Siswa Handler
-  function loadRekapSiswa() {
-    var kelasId = encodeURIComponent(document.getElementById('rekapKelasSelect').value);
-    var tglAwal = document.getElementById('rekapTglAwal').value;
-    var tglAkhir = document.getElementById('rekapTglAkhir').value;
-
-    if (!kelasId) {
-      alert("Silakan pilih kelas terlebih dahulu!");
-      return;
+    function saveScriptUrl() {
+      const url = document.getElementById('scriptUrlInput').value.trim();
+      if (!url) return alert('Masukkan URL Web App terlebih dahulu!');
+      localStorage.setItem('APPS_SCRIPT_URL', url);
+      SCRIPT_URL = url;
+      loadInitialData();
     }
 
-    var tbody = document.getElementById('tbodyRekapSiswa');
-    tbody.innerHTML = '<tr><td colspan="7" class="text-center py-5"><span class="spinner-border spinner-border-sm me-2"></span>Memuat rekap presensi siswa...</td></tr>';
+    // 1. Fetch Master Data dari Apps Script (doGet)
+    function loadInitialData() {
+      document.getElementById('loadingMaster').innerHTML = `<span class="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></span><span>Memuat Data...</span>`;
+      
+      fetch(`${SCRIPT_URL}?action=getInitialData`)
+        .then(res => res.json())
+        .then(res => {
+          if (res.status === 'success') {
+            masterData = res.data;
+            populateDropdowns();
+            document.getElementById('loadingMaster').innerHTML = `<span class="w-2 h-2 bg-emerald-400 rounded-full"></span><span>Terhubung</span>`;
+            document.getElementById('urlConfigBox').classList.add('hidden');
+          }
+        })
+        .catch(err => {
+          showError('Gagal terhubung ke Google Apps Script. Pastikan URL benar.');
+          document.getElementById('loadingMaster').innerHTML = `<span class="w-2 h-2 bg-rose-400 rounded-full"></span><span>Error Koneksi</span>`;
+        });
+    }
 
-    var url = `${WEB_APP_URL}?action=getRekapSiswa&kelasId=${kelasId}&tglAwal=${tglAwal}&tglAkhir=${tglAkhir}`;
-
-    fetch(url)
-      .then(res => res.json())
-      .then(renderRekapSiswa)
-      .catch(err => {
-        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-danger py-5">Gagal memuat data rekap.</td></tr>';
-        alert("Error: " + err);
+    function populateDropdowns() {
+      const gSel = document.getElementById('selectGuru');
+      const gRekapSel = document.getElementById('rekapNip');
+      gSel.innerHTML = '<option value="">-- Pilih Guru --</option>';
+      gRekapSel.innerHTML = '<option value="">-- Pilih Guru --</option>';
+      masterData.gurus.forEach(g => {
+        gSel.innerHTML += `<option value="${g.nip}">${g.nama}</option>`;
+        gRekapSel.innerHTML += `<option value="${g.nip}">${g.nama}</option>`;
       });
-  }
 
-  function renderRekapSiswa(response) {
-    var tbody = document.getElementById('tbodyRekapSiswa');
-    tbody.innerHTML = '';
-
-    if (!response || response.status !== 'success' || !response.detailSiswa || response.detailSiswa.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-5">Tidak ada data rekap presensi pada periode tanggal ini.</td></tr>';
-      return;
-    }
-
-    response.detailSiswa.forEach(function(s, idx) {
-      var row = `
-        <tr>
-          <td class="text-center">${idx + 1}</td>
-          <td>${s.nis}</td>
-          <td>${s.nama}</td>
-          <td class="text-center fw-bold text-success">${s.h}</td>
-          <td class="text-center fw-bold text-info">${s.i}</td>
-          <td class="text-center fw-bold text-warning">${s.s}</td>
-          <td class="text-center fw-bold text-danger">${s.a}</td>
-        </tr>
-      `;
-      tbody.innerHTML += row;
-    });
-  }
-
-  // Rekap Guru Handler
-  function loadRekapGuru() {
-    var nip = encodeURIComponent(document.getElementById('rekapGuruSelect').value);
-    var tglAwal = document.getElementById('rekapGuruTglAwal').value;
-    var tglAkhir = document.getElementById('rekapGuruTglAkhir').value;
-
-    if (!nip) {
-      alert("Silakan pilih guru terlebih dahulu!");
-      return;
-    }
-
-    var tbody = document.getElementById('tbodyRekapGuru');
-    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-5"><span class="spinner-border spinner-border-sm me-2"></span>Memuat data rekap KBM guru...</td></tr>';
-    document.getElementById('statGuruContainer').style.display = 'none';
-
-    var url = `${WEB_APP_URL}?action=getRekapGuru&nip=${nip}&tglAwal=${tglAwal}&tglAkhir=${tglAkhir}`;
-
-    fetch(url)
-      .then(res => res.json())
-      .then(renderRekapGuru)
-      .catch(err => {
-        tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger py-5">Gagal memuat data rekap guru.</td></tr>';
-        alert("Error: " + err);
+      const kSel = document.getElementById('selectKelas');
+      const kRekapSel = document.getElementById('rekapKelasId');
+      kSel.innerHTML = '<option value="">-- Pilih Kelas --</option>';
+      kRekapSel.innerHTML = '<option value="">-- Pilih Kelas --</option>';
+      masterData.kelases.forEach(k => {
+        kSel.innerHTML += `<option value="${k.id}">${k.nama}</option>`;
+        kRekapSel.innerHTML += `<option value="${k.id}">${k.nama}</option>`;
       });
-  }
 
-  function renderRekapGuru(response) {
-    var tbody = document.getElementById('tbodyRekapGuru');
-    tbody.innerHTML = '';
-
-    if (!response || response.status !== 'success' || !response.jurnal || response.jurnal.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-5">Tidak ada riwayat KBM pada periode tanggal ini.</td></tr>';
-      return;
+      const mSel = document.getElementById('selectMapel');
+      mSel.innerHTML = '<option value="">-- Pilih Mapel --</option>';
+      masterData.mapels.forEach(m => {
+        mSel.innerHTML += `<option value="${m.id}">${m.nama}</option>`;
+      });
     }
 
-    document.getElementById('statTotalSesi').innerText = response.statistik.totalSesi || 0;
-    document.getElementById('statTotalJP').innerText = response.statistik.totalJP || 0;
-    document.getElementById('statGuruContainer').style.display = 'flex';
+    function filterMateri() {
+      const mapelId = document.getElementById('selectMapel').value;
+      const mtSel = document.getElementById('selectMateri');
+      mtSel.innerHTML = '<option value="">-- Pilih Materi --</option>';
+      
+      const filtered = masterData.materis.filter(m => m.idMapel === mapelId);
+      filtered.forEach(m => {
+        mtSel.innerHTML += `<option value="${m.materiPokok} - ${m.subTopik}">${m.materiPokok} (${m.subTopik})</option>`;
+      });
+    }
 
-    response.jurnal.forEach(function(j, idx) {
-      var row = `
-        <tr>
-          <td class="text-center">${idx + 1}</td>
-          <td>${j.tanggal}</td>
-          <td>${j.kelas}</td>
-          <td>${j.mapel}</td>
-          <td class="text-center">${j.jamKe}</td>
-          <td>${j.materi}</td>
-          <td>${j.catatan || '-'}</td>
-          <td class="text-center fw-bold">${j.totalJP}</td>
-        </tr>
-      `;
-      tbody.innerHTML += row;
-    });
-  }
+    function renderDaftarSiswa() {
+      const kelasId = document.getElementById('selectKelas').value;
+      const tbody = document.getElementById('tbodyPresensi');
+      tbody.innerHTML = '';
 
-  function cleanText(val) {
-    if (!val) return "";
-    return String(val).toLowerCase().replace(/[^a-z0-9]/g, '');
-  }
-</script>
+      const filtered = masterData.siswas.filter(s => s.kelasId === kelasId);
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-slate-400">Tidak ada data siswa di kelas ini.</td></tr>';
+        return;
+      }
 
+      filtered.forEach(s => {
+        tbody.innerHTML += `
+          <tr class="border-b">
+            <td class="p-2 border font-mono text-xs">${s.nis}</td>
+            <td class="p-2 border font-medium">${s.nama}</td>
+            <td class="p-2 border text-center">
+              <div class="flex justify-center gap-4 text-xs">
+                <label><input type="radio" name="st_${s.nis}" value="H" checked> H</label>
+                <label><input type="radio" name="st_${s.nis}" value="S"> S</label>
+                <label><input type="radio" name="st_${s.nis}" value="I"> I</label>
+                <label><input type="radio" name="st_${s.nis}" value="A"> A</label>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    // 2. Kirim Data Jurnal via Fetch (doPost)
+    function submitJurnal(e) {
+      e.preventDefault();
+      const kelasId = document.getElementById('selectKelas').value;
+      const filteredSiswa = masterData.siswas.filter(s => s.kelasId === kelasId);
+
+      const presensiData = filteredSiswa.map(s => {
+        const checkedVal = document.querySelector(`input[name="st_${s.nis}"]:checked`)?.value || 'H';
+        return { nis: s.nis, nama: s.nama, status: checkedVal };
+      });
+
+      const payload = {
+        tanggal: document.getElementById('inputTanggal').value,
+        nip: document.getElementById('selectGuru').value,
+        kelasId: kelasId,
+        mapelId: document.getElementById('selectMapel').value,
+        jamKe: document.getElementById('inputJamKe').value,
+        materiId: document.getElementById('selectMateri').value,
+        catatan: document.getElementById('inputCatatan').value,
+        presensi: presensiData
+      };
+
+      document.getElementById('btnSubmit').disabled = true;
+      document.getElementById('btnSubmit').textContent = 'Menyimpan...';
+
+      fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      })
+      .then(res => res.json())
+      .then(res => {
+        document.getElementById('btnSubmit').disabled = false;
+        document.getElementById('btnSubmit').textContent = 'Simpan Jurnal & Presensi';
+        if (res.status === 'success') {
+          showAlert('Jurnal & Presensi berhasil disimpan!', 'success');
+          document.getElementById('formJurnal').reset();
+          document.getElementById('tbodyPresensi').innerHTML = '<tr><td colspan="3" class="p-4 text-center text-slate-400">Pilih kelas terlebih dahulu.</td></tr>';
+        } else {
+          showError(res.message);
+        }
+      })
+      .catch(err => {
+        document.getElementById('btnSubmit').disabled = false;
+        document.getElementById('btnSubmit').textContent = 'Simpan Jurnal & Presensi';
+        showError('Gagal mengirim data.');
+      });
+    }
+
+    // 3. Fetch Rekap Siswa (doGet)
+    function fetchRekapSiswa() {
+      const kelasId = document.getElementById('rekapKelasId').value;
+      const tglAwal = document.getElementById('rekapSiswaTglAwal').value;
+      const tglAkhir = document.getElementById('rekapSiswaTglAkhir').value;
+
+      if (!kelasId) return alert('Pilih kelas terlebih dahulu.');
+
+      fetch(`${SCRIPT_URL}?action=getRekapSiswa&kelasId=${encodeURIComponent(kelasId)}&tglAwal=${tglAwal}&tglAkhir=${tglAkhir}`)
+        .then(res => res.json())
+        .then(res => {
+          const tbody = document.getElementById('tbodyRekapSiswa');
+          tbody.innerHTML = '';
+          if (res.status === 'success' && res.detailSiswa.length > 0) {
+            res.detailSiswa.forEach(s => {
+              tbody.innerHTML += `
+                <tr class="border-b text-center">
+                  <td class="p-2 border font-mono text-xs text-left">${s.nis}</td>
+                  <td class="p-2 border text-left font-medium">${s.nama}</td>
+                  <td class="p-2 border text-emerald-600 font-bold">${s.h}</td>
+                  <td class="p-2 border text-amber-600 font-bold">${s.s}</td>
+                  <td class="p-2 border text-blue-600 font-bold">${s.i}</td>
+                  <td class="p-2 border text-rose-600 font-bold">${s.a}</td>
+                </tr>
+              `;
+            });
+          } else {
+            tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-400">Data presensi tidak ditemukan.</td></tr>';
+          }
+        })
+        .catch(err => showError('Gagal mengambil data rekap siswa.'));
+    }
+
+    // 4. Fetch Rekap Guru (doGet)
+    function fetchRekapGuru() {
+      const nip = document.getElementById('rekapNip').value;
+      const tglAwal = document.getElementById('rekapGuruTglAwal').value;
+      const tglAkhir = document.getElementById('rekapGuruTglAkhir').value;
+
+      if (!nip) return alert('Pilih guru terlebih dahulu.');
+
+      fetch(`${SCRIPT_URL}?action=getRekapGuru&nip=${encodeURIComponent(nip)}&tglAwal=${tglAwal}&tglAkhir=${tglAkhir}`)
+        .then(res => res.json())
+        .then(res => {
+          const tbody = document.getElementById('tbodyRekapGuru');
+          const statBox = document.getElementById('statGuru');
+          tbody.innerHTML = '';
+
+          if (res.status === 'success' && res.jurnal.length > 0) {
+            statBox.classList.remove('hidden');
+            statBox.classList.add('grid');
+            document.getElementById('statSesi').textContent = res.statistik.totalSesi;
+            document.getElementById('statJP').textContent = res.statistik.totalJP;
+
+            res.jurnal.forEach(j => {
+              tbody.innerHTML += `
+                <tr class="border-b">
+                  <td class="p-2 border text-xs">${j.tanggal}</td>
+                  <td class="p-2 border font-medium">${j.kelas}</td>
+                  <td class="p-2 border">${j.mapel}</td>
+                  <td class="p-2 border text-center">${j.jamKe}</td>
+                  <td class="p-2 border text-center font-bold text-indigo-600">${j.totalJP}</td>
+                  <td class="p-2 border text-xs"><b>${j.materi}</b><br><span class="text-slate-500">${j.catatan}</span></td>
+                </tr>
+              `;
+            });
+          } else {
+            statBox.classList.add('hidden');
+            tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-400">Data jurnal tidak ditemukan.</td></tr>';
+          }
+        })
+        .catch(err => showError('Gagal mengambil data rekap guru.'));
+    }
+
+    // Helper UI & Navigation
+    function switchTab(tab) {
+      document.getElementById('tabInput').classList.toggle('hidden', tab !== 'input');
+      document.getElementById('tabRekapSiswa').classList.toggle('hidden', tab !== 'rekapSiswa');
+      document.getElementById('tabRekapGuru').classList.toggle('hidden', tab !== 'rekapGuru');
+    }
+
+    function showAlert(msg, type) {
+      const box = document.getElementById('alertBox');
+      box.textContent = msg;
+      box.className = `p-4 rounded-lg text-sm font-medium ${type === 'success' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`;
+      box.classList.remove('hidden');
+      setTimeout(() => box.classList.add('hidden'), 4000);
+    }
+
+    function showError(err) {
+      showAlert('Error: ' + (err.message || err), 'error');
+    }
+  </script>
 </body>
 </html>
