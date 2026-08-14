@@ -23,10 +23,13 @@
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
     .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 15px; }
 
+    .input-with-btn { display: flex; gap: 8px; }
+    .btn-add { width: auto; padding: 0 15px; background: #28a745; color: white; border: none; font-weight: bold; font-size: 1.2em; cursor: pointer; border-radius: 4px; }
+    .btn-add:hover { background: #218838; }
+
     .btn-primary { background-color: #007bff; color: white; border: none; font-weight: bold; cursor: pointer; }
     .btn-primary:hover { background-color: #0056b3; }
     .btn-print { background-color: #28a745; color: white; border: none; font-weight: bold; cursor: pointer; width: auto; padding: 10px 20px; margin-bottom: 15px; }
-    .btn-print:hover { background-color: #218838; }
 
     table { width: 100%; border-collapse: collapse; margin-top: 15px; }
     table, th, td { border: 1px solid #333; padding: 8px; text-align: left; }
@@ -37,33 +40,28 @@
 
     #loading { display: none; color: #007bff; font-weight: bold; margin-bottom: 15px; }
 
-    /* Elemen khusus dokumen cetak */
+    /* Modal / Pop-Up Styles */
+    .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
+    .modal-content { background: white; max-width: 450px; margin: 10% auto; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+    .modal-header { font-size: 1.2em; font-weight: bold; margin-bottom: 15px; color: #007bff; border-bottom: 1px solid #ddd; padding-bottom: 8px; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+    .btn-secondary { background: #6c757d; color: white; border: none; font-weight: bold; cursor: pointer; width: auto; padding: 8px 16px; }
+
     .print-only { display: none; }
 
-    /* ==================== STYLES CETAK / PRINT ==================== */
     @media print {
       body { background: white; margin: 0; padding: 0; font-size: 12pt; }
       .container { box-shadow: none; max-width: 100%; width: 100%; padding: 0; margin: 0; }
-      
-      /* Sembunyikan elemen non-cetak */
       .nav-tabs, .btn-print, button, #loading, .filter-section, #input-jurnal, h2 { display: none !important; }
-      
-      /* Tampilkan hanya tab rekap yang aktif */
       .tab-content { display: none !important; }
       .tab-content.active { display: block !important; }
-
-      /* Kop Laporan Cetak */
       .print-only { display: block !important; }
       .kop-header { text-align: center; border-bottom: 3px double #000; padding-bottom: 10px; margin-bottom: 20px; }
       .kop-header h3 { margin: 0; font-size: 16pt; text-transform: uppercase; }
       .kop-header p { margin: 2px 0; font-size: 10pt; }
-
-      /* Tabel Cetak */
       table { width: 100% !important; border-collapse: collapse !important; margin-top: 10px; }
       th, td { border: 1px solid #000 !important; padding: 6px 8px !important; font-size: 10pt; }
       th { background-color: #eee !important; text-align: center; }
-
-      /* Tanda Tangan */
       .ttd-container { display: flex; justify-content: space-between; margin-top: 40px; page-break-inside: avoid; }
       .ttd-box { text-align: center; width: 40%; }
       .ttd-space { height: 60px; }
@@ -118,18 +116,25 @@
         </div>
       </div>
 
+      <!-- Dropdown Materi Pokok & Sub Topik + Tombol Tambah (+) -->
       <div class="grid-2">
         <div class="form-group">
           <label>Materi Pokok / Bab:</label>
-          <select id="materiPokok" onchange="onMateriPokokChange()" required>
-            <option value="">-- Pilih Mapel Terlebih Dahulu --</option>
-          </select>
+          <div class="input-with-btn">
+            <select id="materiPokok" onchange="onMateriPokokChange()" required>
+              <option value="">-- Pilih Mapel Terlebih Dahulu --</option>
+            </select>
+            <button type="button" class="btn-add" onclick="bukaModalMateri()" title="Tambah Materi Baru">+</button>
+          </div>
         </div>
         <div class="form-group">
           <label>Sub-Topik / Rincian Materi:</label>
-          <select id="subTopik" required>
-            <option value="">-- Pilih Materi Pokok Terlebih Dahulu --</option>
-          </select>
+          <div class="input-with-btn">
+            <select id="subTopik" required>
+              <option value="">-- Pilih Materi Pokok Terlebih Dahulu --</option>
+            </select>
+            <button type="button" class="btn-add" onclick="bukaModalMateri()" title="Tambah Sub Topik Baru">+</button>
+          </div>
         </div>
       </div>
 
@@ -147,100 +152,76 @@
     </form>
   </div>
 
-  <!-- Tab 2: Rekap Presensi Siswa -->
+  <!-- Tab 2 & 3 tetap sama -->
   <div id="rekap-siswa" class="tab-content">
     <div class="filter-section">
-      <div class="form-group">
-        <label>Pilih Kelas:</label>
-        <select id="rekapKelasSiswa"><option value="">-- Pilih Kelas --</option></select>
-      </div>
+      <div class="form-group"><label>Pilih Kelas:</label><select id="rekapKelasSiswa"><option value="">-- Pilih Kelas --</option></select></div>
       <div class="grid-2">
-        <div class="form-group">
-          <label>Tanggal Awal:</label>
-          <input type="date" id="tglAwalSiswa">
-        </div>
-        <div class="form-group">
-          <label>Tanggal Akhir:</label>
-          <input type="date" id="tglAkhirSiswa">
-        </div>
+        <div class="form-group"><label>Tanggal Awal:</label><input type="date" id="tglAwalSiswa"></div>
+        <div class="form-group"><label>Tanggal Akhir:</label><input type="date" id="tglAkhirSiswa"></div>
       </div>
       <button class="btn-primary" onclick="loadRekapSiswa()">Tampilkan Rekap Siswa</button>
     </div>
     <hr style="margin: 20px 0;">
-    
     <button class="btn-print" onclick="cetakLaporan('rekap-siswa')">🖨️ Cetak / Simpan PDF Rekap Siswa</button>
-    
-    <!-- Area Hasil Cetak Rekap Siswa -->
     <div id="cetakAreaSiswa">
-      <div class="print-only kop-header">
-        <h3>Laporan Rekapitulasi Presensi Siswa</h3>
-        <p id="subKopSiswa">Periode Laporan</p>
-      </div>
+      <div class="print-only kop-header"><h3>Laporan Rekapitulasi Presensi Siswa</h3><p id="subKopSiswa">Periode Laporan</p></div>
       <div id="tabelRekapSiswaArea"></div>
       <div class="print-only ttd-container">
-        <div class="ttd-box">
-          <p>Mengetahui,<br>Kepala Sekolah / Pengawas</p>
-          <div class="ttd-space"></div>
-          <p><b>_______________________</b></p>
-        </div>
-        <div class="ttd-box">
-          <p>Wali Kelas / Petugas</p>
-          <div class="ttd-space"></div>
-          <p><b>_______________________</b></p>
-        </div>
+        <div class="ttd-box"><p>Mengetahui,<br>Kepala Sekolah / Pengawas</p><div class="ttd-space"></div><p><b>_______________________</b></p></div>
+        <div class="ttd-box"><p>Wali Kelas / Petugas</p><div class="ttd-space"></div><p><b>_______________________</b></p></div>
       </div>
     </div>
   </div>
 
-  <!-- Tab 3: Rekap Jurnal Guru -->
   <div id="rekap-guru" class="tab-content">
     <div class="filter-section">
-      <div class="form-group">
-        <label>Pilih Guru:</label>
-        <select id="rekapGuruSelect"><option value="">-- Pilih Guru --</option></select>
-      </div>
+      <div class="form-group"><label>Pilih Guru:</label><select id="rekapGuruSelect"><option value="">-- Pilih Guru --</option></select></div>
       <div class="grid-2">
-        <div class="form-group">
-          <label>Tanggal Awal:</label>
-          <input type="date" id="tglAwalGuru">
-        </div>
-        <div class="form-group">
-          <label>Tanggal Akhir:</label>
-          <input type="date" id="tglAkhirGuru">
-        </div>
+        <div class="form-group"><label>Tanggal Awal:</label><input type="date" id="tglAwalGuru"></div>
+        <div class="form-group"><label>Tanggal Akhir:</label><input type="date" id="tglAkhirGuru"></div>
       </div>
       <button class="btn-primary" onclick="loadRekapGuru()">Tampilkan Rekap Guru</button>
     </div>
     <hr style="margin: 20px 0;">
-    
     <button class="btn-print" onclick="cetakLaporan('rekap-guru')">🖨️ Cetak / Simpan PDF Jurnal Guru</button>
-    
-    <!-- Area Hasil Cetak Rekap Guru -->
     <div id="cetakAreaGuru">
-      <div class="print-only kop-header">
-        <h3>Laporan Jurnal Pelaksanaan KBM Guru</h3>
-        <p id="subKopGuru">Periode Laporan</p>
-      </div>
+      <div class="print-only kop-header"><h3>Laporan Jurnal Pelaksanaan KBM Guru</h3><p id="subKopGuru">Periode Laporan</p></div>
       <div id="tabelRekapGuruArea"></div>
       <div class="print-only ttd-container">
-        <div class="ttd-box">
-          <p>Mengetahui,<br>Pengawas Sekolah / Kepala Sekolah</p>
-          <div class="ttd-space"></div>
-          <p><b>_______________________</b></p>
-        </div>
-        <div class="ttd-box">
-          <p>Guru Pengajar</p>
-          <div class="ttd-space"></div>
-          <p><b>_______________________</b></p>
-        </div>
+        <div class="ttd-box"><p>Mengetahui,<br>Pengawas Sekolah / Kepala Sekolah</p><div class="ttd-space"></div><p><b>_______________________</b></p></div>
+        <div class="ttd-box"><p>Guru Pengajar</p><div class="ttd-space"></div><p><b>_______________________</b></p></div>
       </div>
     </div>
   </div>
 
 </div>
 
+<!-- Pop-Up Modal Tambah Materi Baru -->
+<div id="modalMateri" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">➕ Tambah Materi / Sub-Topik</div>
+    <div class="form-group">
+      <label>Mata Pelajaran (Otomatis):</label>
+      <input type="text" id="modalNamaMapel" readonly style="background-color: #e9ecef; font-weight: bold;">
+    </div>
+    <div class="form-group">
+      <label>Materi Pokok / Bab:</label>
+      <input type="text" id="modalMateriPokok" placeholder="Contoh: Bab 4: Apresiasi Seni">
+    </div>
+    <div class="form-group">
+      <label>Sub-Topik / Detail Materi:</label>
+      <input type="text" id="modalSubTopik" placeholder="Contoh: Teknik Menggambar Bentuk">
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" onclick="tutupModalMateri()">Batal</button>
+      <button type="button" class="btn-primary" style="width:auto;" onclick="simpanMateriBaru()">Simpan Materi</button>
+    </div>
+  </div>
+</div>
+
 <script>
-  const API_URL = "https://script.google.com/macros/s/AKfycbw7S52dVke44xjHNhOlop0ONaikrqqwV3-vGiSlnQFno1pGSeB5WlJoTmrvr0ctUQk53g/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbyEf-WOvNqH9q8GqikyrS9Mx0d8pcU07R5eVKjhw0nDXuCdpil2oZ95Jbqx2T15QdwnXQ/exec";
 
   let masterMateris = [];
   let masterSiswas = [];
@@ -288,10 +269,8 @@
 
           populateDropdown('guru', res.data.gurus, 'nip', 'nama');
           populateDropdown('rekapGuruSelect', res.data.gurus, 'nip', 'nama');
-          
           populateDropdown('kelas', res.data.kelases, 'id', 'nama');
           populateDropdown('rekapKelasSiswa', res.data.kelases, 'id', 'nama');
-
           populateDropdown('mapel', res.data.mapels, 'id', 'nama');
         }
       })
@@ -342,7 +321,7 @@
           selectPokok.appendChild(opt);
         });
       } else {
-        selectPokok.innerHTML = '<option value="">-- Tidak Ada Materi untuk Mapel Ini --</option>';
+        selectPokok.innerHTML = '<option value="">-- Belum Ada Materi (Klik + untuk Tambah) --</option>';
       }
     }
 
@@ -404,9 +383,86 @@
           selectSub.appendChild(opt);
         });
       } else {
-        selectSub.innerHTML = '<option value="-">- (Tidak Ada Sub-Topik)</option>';
+        selectSub.innerHTML = '<option value="-">- (Tanpa Sub-Topik)</option>';
       }
     }
+  }
+
+  // --- LOGIKA MODAL POP-UP TAMBAH MATERI ---
+  function bukaModalMateri() {
+    const mapelSelect = document.getElementById('mapel');
+    const mapelId = mapelSelect.value;
+
+    if (!mapelId) {
+      alert("Silakan pilih Mata Pelajaran terlebih dahulu!");
+      return;
+    }
+
+    const mapelNama = mapelSelect.options[mapelSelect.selectedIndex].text;
+    document.getElementById('modalNamaMapel').value = mapelNama;
+    
+    // Jika materi pokok di dropdown sudah terpilih, isi otomatis ke modal
+    const currentPokok = document.getElementById('materiPokok').value;
+    document.getElementById('modalMateriPokok').value = currentPokok || '';
+    document.getElementById('modalSubTopik').value = '';
+
+    document.getElementById('modalMateri').style.display = 'block';
+  }
+
+  function tutupModalMateri() {
+    document.getElementById('modalMateri').style.display = 'none';
+  }
+
+  function simpanMateriBaru() {
+    const mapelId = document.getElementById('mapel').value;
+    const materiPokok = document.getElementById('modalMateriPokok').value.trim();
+    const subTopik = document.getElementById('modalSubTopik').value.trim();
+
+    if (!materiPokok) {
+      alert("Materi Pokok / Bab wajib diisi!");
+      return;
+    }
+
+    showLoading(true);
+    tutupModalMateri();
+
+    const payload = {
+      action: "addMateri",
+      mapelId: mapelId,
+      materiPokok: materiPokok,
+      subTopik: subTopik || "-"
+    };
+
+    fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(res => {
+      showLoading(false);
+      if (res.status === 'success') {
+        alert("Materi Baru Berhasil Ditambahkan!");
+        
+        // Simpan lokal ke variabel master
+        masterMateris.push({
+          rawIdMapel: mapelId.toUpperCase().trim(),
+          materiPokok: materiPokok,
+          subTopik: subTopik || "-"
+        });
+
+        // Trigger update dropdown
+        onKelasOrMapelChange();
+        document.getElementById('materiPokok').value = materiPokok;
+        onMateriPokokChange();
+        if (subTopik) document.getElementById('subTopik').value = subTopik;
+      } else {
+        alert("Gagal menambah materi: " + res.message);
+      }
+    })
+    .catch(err => {
+      showLoading(false);
+      alert("Error simpan materi: " + err);
+    });
   }
 
   function hitungJP() {
@@ -479,7 +535,6 @@
   }
 
   function cetakLaporan(tabId) {
-    // Pastikan tab laporan yang akan dicetak dibuka terlebih dahulu
     openTab(tabId);
     window.print();
   }
@@ -505,8 +560,7 @@
     
     let gabunganMateri = materiPokokVal;
     if (subTopikVal && subTopikVal !== '-') {
-      replaceMateri = `${materiPokokVal} - ${subTopikVal}`;
-      gabunganMateri = replaceMateri;
+      gabunganMateri = `${materiPokokVal} - ${subTopikVal}`;
     }
 
     const payload = {
