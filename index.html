@@ -18,7 +18,7 @@
 <body class="py-4">
 
 <div class="container">
-  <!-- Header -->
+  <!-- Header Navigasi -->
   <div class="d-flex justify-content-between align-items-center mb-4 no-print">
     <h3 class="fw-bold text-primary mb-0">SIM Jurnal KBM & Presensi</h3>
     <ul class="nav nav-pills" id="mainNav">
@@ -70,19 +70,26 @@
             <label class="form-label">Total JP</label>
             <input type="number" id="totalJp" class="form-control bg-light" readonly>
           </div>
+
+          <!-- MATERI (DROPDOWN DEDUPLICATED + TOMBOL TAMBAH) -->
           <div class="col-md-3">
             <label class="form-label d-flex justify-content-between">
               Materi
               <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#modalMateri">+ Tambah</a>
             </label>
-            <select id="optMateri" class="form-select" onchange="updateSubTopik()" required>
+            <select id="optMateri" class="form-select" onchange="filterSubTopik()" required>
               <option value="">-- Pilih Materi --</option>
             </select>
           </div>
+
+          <!-- SUB TOPIK (DROPDOWN DINAMIS) -->
           <div class="col-md-3">
             <label class="form-label">Sub Topik</label>
-            <input type="text" id="subTopikVal" class="form-control bg-light" readonly placeholder="-">
+            <select id="optSubTopik" class="form-select" required>
+              <option value="">-- Pilih Sub Topik --</option>
+            </select>
           </div>
+
           <div class="col-12">
             <label class="form-label">Catatan Pelaksanaan KBM</label>
             <textarea id="catatanKbm" class="form-control" rows="2" placeholder="Catatan kegiatan belajar mengajar..."></textarea>
@@ -163,29 +170,30 @@
   </div>
 </div>
 
-<!-- MODAL TAMBAH MATERI -->
+<!-- MODAL TAMBAH MATERI & SUB TOPIK -->
 <div class="modal fade" id="modalMateri" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Tambah Materi Baru</h5>
+        <h5 class="modal-title">Tambah Materi & Sub Topik Baru</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
         <div class="mb-3">
-          <label class="form-label">Mapel</label>
-          <select id="modalOptMapel" class="form-select"></select>
+          <label class="form-label">Mata Pelajaran</label>
+          <select id="modalOptMapel" class="form-select" required></select>
         </div>
         <div class="mb-3">
           <label class="form-label">Materi Pokok</label>
-          <input type="text" id="modalMateriPokok" class="form-control" required>
+          <input type="text" id="modalMateriPokok" class="form-control" placeholder="Contoh: Bab 1: Berpikir Komputasional" required>
         </div>
         <div class="mb-3">
           <label class="form-label">Sub Topik</label>
-          <input type="text" id="modalSubTopik" class="form-control" required>
+          <input type="text" id="modalSubTopik" class="form-control" placeholder="Contoh: Algoritma dan Pemrograman" required>
         </div>
       </div>
       <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
         <button type="button" class="btn btn-primary" onclick="simpanMateriBaru()">Simpan ke Sheet</button>
       </div>
     </div>
@@ -194,7 +202,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-  // PASTA URL APPS SCRIPT BERAKHIRAN /exec KAMU DI SINI
+  // SILAKAN TEMPEL URL WEB APP APPS SCRIPT BERAKHIRAN /exec KAMU DI SINI
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyEf-WOvNqH9q8GqikyrS9Mx0d8pcU07R5eVKjhw0nDXuCdpil2oZ95Jbqx2T15QdwnXQ/exec';
 
   let rawData = { gurus: [], kelases: [], mapels: [], materis: [], siswas: [] };
@@ -248,20 +256,40 @@
     }
   }
 
+  // FILTER MATERI POKOK (MENGHILANGKAN DUPLIKAT)
   function filterMateri() {
     let mapelId = document.getElementById('optMapel').value;
     let optMateri = document.getElementById('optMateri');
+    let optSub = document.getElementById('optSubTopik');
+
     optMateri.innerHTML = '<option value="">-- Pilih Materi --</option>';
+    optSub.innerHTML = '<option value="">-- Pilih Sub Topik --</option>';
     
     let filtered = rawData.materis.filter(m => m.idMapel === mapelId);
-    filtered.forEach(m => {
-      optMateri.innerHTML += `<option value="${m.materiPokok}" data-sub="${m.subTopik}">${m.materiPokok}</option>`;
+    
+    // Ambil materi pokok unik saja
+    let uniqueMateri = [...new Set(filtered.map(m => m.materiPokok))];
+    
+    uniqueMateri.forEach(mat => {
+      optMateri.innerHTML += `<option value="${mat}">${mat}</option>`;
     });
   }
 
-  function updateSubTopik() {
-    let opt = document.getElementById('optMateri').selectedOptions[0];
-    document.getElementById('subTopikVal').value = opt ? (opt.getAttribute('data-sub') || '-') : '-';
+  // FILTER SUB TOPIK BERDASARKAN MATERI POKOK YANG DIPILIH
+  function filterSubTopik() {
+    let mapelId = document.getElementById('optMapel').value;
+    let selectedMateri = document.getElementById('optMateri').value;
+    let optSub = document.getElementById('optSubTopik');
+
+    optSub.innerHTML = '<option value="">-- Pilih Sub Topik --</option>';
+
+    let filtered = rawData.materis.filter(m => m.idMapel === mapelId && m.materiPokok === selectedMateri);
+    
+    filtered.forEach(m => {
+      if(m.subTopik) {
+        optSub.innerHTML += `<option value="${m.subTopik}">${m.subTopik}</option>`;
+      }
+    });
   }
 
   function loadSiswaByKelas() {
@@ -307,11 +335,18 @@
       subTopik: document.getElementById('modalSubTopik').value
     };
 
+    if(!payload.mapelId || !payload.materiPokok || !payload.subTopik) {
+      alert('Semua bidang pada modal materi wajib diisi!');
+      return;
+    }
+
     fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
       .then(r => r.json())
       .then(res => {
         alert(res.message);
         bootstrap.Modal.getInstance(document.getElementById('modalMateri')).hide();
+        document.getElementById('modalMateriPokok').value = '';
+        document.getElementById('modalSubTopik').value = '';
         initData();
       });
   }
@@ -325,13 +360,19 @@
       if(nis) presensiArr.push({ nis, nama, status });
     });
 
+    let materiGabung = document.getElementById('optMateri').value;
+    let subTopikVal = document.getElementById('optSubTopik').value;
+    if(subTopikVal) {
+      materiGabung += ' - ' + subTopikVal;
+    }
+
     let payload = {
       tanggal: document.getElementById('tglKbm').value,
       nip: document.getElementById('optGuru').value,
       kelasId: document.getElementById('optKelas').value,
       mapelId: document.getElementById('optMapel').value,
       jamKe: document.getElementById('jamKe').value,
-      materiId: document.getElementById('optMateri').value,
+      materiId: materiGabung,
       catatan: document.getElementById('catatanKbm').value,
       presensi: presensiArr
     };
@@ -354,9 +395,11 @@
       .then(res => {
         let tbody = document.getElementById('tbRekapSiswa');
         tbody.innerHTML = '';
-        res.detailSiswa.forEach(s => {
-          tbody.innerHTML += `<tr><td>${s.nis}</td><td>${s.nama}</td><td>${s.h}</td><td>${s.i}</td><td>${s.s}</td><td>${s.a}</td></tr>`;
-        });
+        if(res.detailSiswa) {
+          res.detailSiswa.forEach(s => {
+            tbody.innerHTML += `<tr><td>${s.nis}</td><td>${s.nama}</td><td>${s.h}</td><td>${s.i}</td><td>${s.s}</td><td>${s.a}</td></tr>`;
+          });
+        }
       });
   }
 
@@ -368,12 +411,16 @@
     fetch(`${SCRIPT_URL}?action=getRekapGuru&nip=${nip}&tglAwal=${tglAwal}&tglAkhir=${tglAkhir}`)
       .then(r => r.json())
       .then(res => {
-        document.getElementById('statGuruInfo').innerText = `Total Sesi: ${res.statistik.totalSesi} | Total JP: ${res.statistik.totalJP}`;
+        if(res.statistik) {
+          document.getElementById('statGuruInfo').innerText = `Total Sesi: ${res.statistik.totalSesi} | Total JP: ${res.statistik.totalJP}`;
+        }
         let tbody = document.getElementById('tbRekapGuru');
         tbody.innerHTML = '';
-        res.jurnal.forEach(j => {
-          tbody.innerHTML += `<tr><td>${j.tanggal}</td><td>${j.kelas}</td><td>${j.mapel}</td><td>${j.jamKe}</td><td>${j.materi}</td><td>${j.catatan}</td><td>${j.totalJP}</td></tr>`;
-        });
+        if(res.jurnal) {
+          res.jurnal.forEach(j => {
+            tbody.innerHTML += `<tr><td>${j.tanggal}</td><td>${j.kelas}</td><td>${j.mapel}</td><td>${j.jamKe}</td><td>${j.materi}</td><td>${j.catatan}</td><td>${j.totalJP}</td></tr>`;
+          });
+        }
       });
   }
 </script>
