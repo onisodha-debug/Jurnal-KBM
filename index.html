@@ -3,452 +3,379 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SIM Jurnal KBM & Presensi Siswa</title>
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>SIM Jurnal KBM & Presensi</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    .card { border-radius: 12px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .nav-pills .nav-link.active { background-color: #0d6efd; }
+    @media print {
+      .no-print { display: none !important; }
+      .card { box-shadow: none; border: none; }
+    }
+  </style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen">
+<body class="py-4">
 
+<div class="container">
   <!-- Header -->
-  <header class="bg-indigo-700 text-white shadow-md py-4 px-6">
-    <div class="max-w-6xl mx-auto flex justify-between items-center">
-      <h1 class="text-xl font-bold">SIM Jurnal KBM & Presensi</h1>
-      <div id="loadingMaster" class="text-xs bg-indigo-800 px-3 py-1 rounded-full flex items-center gap-2">
-        <span class="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></span>
-        <span>Menghubungkan ke Server...</span>
+  <div class="d-flex justify-content-between align-items-center mb-4 no-print">
+    <h3 class="fw-bold text-primary mb-0">SIM Jurnal KBM & Presensi</h3>
+    <ul class="nav nav-pills" id="mainNav">
+      <li class="nav-item">
+        <button class="nav-link active" onclick="switchTab('jurnal')">Jurnal & Presensi</button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" onclick="switchTab('rekapSiswa')">Rekap Presensi Siswa</button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" onclick="switchTab('rekapGuru')">Rekap Jurnal Guru</button>
+      </li>
+    </ul>
+  </div>
+
+  <!-- TAB 1: FORM JURNAL & PRESENSI -->
+  <div id="sec-jurnal" class="tab-section">
+    <div class="card p-4 mb-4">
+      <h5 class="fw-bold mb-3 border-bottom pb-2">1. Input Jurnal KBM</h5>
+      <form id="formJurnal">
+        <div class="row g-3">
+          <div class="col-md-3">
+            <label class="form-label font-weight-bold">Tanggal</label>
+            <input type="date" id="tglKbm" class="form-control" required>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Guru</label>
+            <select id="optGuru" class="form-select" required>
+              <option value="">-- Pilih Guru --</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Kelas</label>
+            <select id="optKelas" class="form-select" onchange="loadSiswaByKelas()" required>
+              <option value="">-- Pilih Kelas --</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Mata Pelajaran</label>
+            <select id="optMapel" class="form-select" onchange="filterMateri()" required>
+              <option value="">-- Pilih Mapel --</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Jam Ke- (Contoh: 1-2)</label>
+            <input type="text" id="jamKe" class="form-control" placeholder="1-2" oninput="hitungJP()" required>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Total JP</label>
+            <input type="number" id="totalJp" class="form-control bg-light" readonly>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label d-flex justify-content-between">
+              Materi
+              <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#modalMateri">+ Tambah</a>
+            </label>
+            <select id="optMateri" class="form-select" onchange="updateSubTopik()" required>
+              <option value="">-- Pilih Materi --</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Sub Topik</label>
+            <input type="text" id="subTopikVal" class="form-control bg-light" readonly placeholder="-">
+          </div>
+          <div class="col-12">
+            <label class="form-label">Catatan Pelaksanaan KBM</label>
+            <textarea id="catatanKbm" class="form-control" rows="2" placeholder="Catatan kegiatan belajar mengajar..."></textarea>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Presensi Siswa -->
+    <div class="card p-4 mb-4">
+      <h5 class="fw-bold mb-3 border-bottom pb-2">2. Presensi Kehadiran Siswa</h5>
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+          <thead class="table-light">
+            <tr>
+              <th width="50">No</th>
+              <th>NIS</th>
+              <th>Nama Siswa</th>
+              <th width="200" class="text-center">Status Kehadiran</th>
+            </tr>
+          </thead>
+          <tbody id="tbPresensi">
+            <tr><td colspan="4" class="text-center text-muted">Pilih kelas terlebih dahulu untuk menampilkan siswa.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <button class="btn btn-primary btn-lg mt-3 w-100" onclick="simpanJurnal()">Simpan Jurnal & Presensi</button>
+    </div>
+  </div>
+
+  <!-- TAB 2: REKAP PRESENSI SISWA -->
+  <div id="sec-rekapSiswa" class="tab-section d-none">
+    <div class="card p-4">
+      <div class="d-flex justify-content-between align-items-center mb-3 no-print">
+        <h5 class="fw-bold mb-0">Rekap Presensi Siswa</h5>
+        <button class="btn btn-outline-secondary" onclick="window.print()">🖨️ Cetak / PDF</button>
+      </div>
+      <div class="row g-3 mb-3 no-print">
+        <div class="col-md-3">
+          <select id="rekapOptKelas" class="form-select"><option value="">-- Pilih Kelas --</option></select>
+        </div>
+        <div class="col-md-3"><input type="date" id="rekapSiswaAwal" class="form-control"></div>
+        <div class="col-md-3"><input type="date" id="rekapSiswaAkhir" class="form-control"></div>
+        <div class="col-md-3"><button class="btn btn-success w-100" onclick="fetchRekapSiswa()">Tampilkan</button></div>
+      </div>
+      <table class="table table-bordered mt-3">
+        <thead class="table-light">
+          <tr><th>NIS</th><th>Nama Siswa</th><th>Hadir (H)</th><th>Izin (I)</th><th>Sakit (S)</th><th>Alpa (A)</th></tr>
+        </thead>
+        <tbody id="tbRekapSiswa"><tr><td colspan="6" class="text-center text-muted">Silakan pilih filter rekap.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB 3: REKAP JURNAL GURU -->
+  <div id="sec-rekapGuru" class="tab-section d-none">
+    <div class="card p-4">
+      <div class="d-flex justify-content-between align-items-center mb-3 no-print">
+        <h5 class="fw-bold mb-0">Rekap Jurnal Guru</h5>
+        <button class="btn btn-outline-secondary" onclick="window.print()">🖨️ Cetak / PDF</button>
+      </div>
+      <div class="row g-3 mb-3 no-print">
+        <div class="col-md-3">
+          <select id="rekapOptGuru" class="form-select"><option value="">-- Pilih Guru --</option></select>
+        </div>
+        <div class="col-md-3"><input type="date" id="rekapGuruAwal" class="form-control"></div>
+        <div class="col-md-3"><input type="date" id="rekapGuruAkhir" class="form-control"></div>
+        <div class="col-md-3"><button class="btn btn-success w-100" onclick="fetchRekapGuru()">Tampilkan</button></div>
+      </div>
+      <div id="statGuruInfo" class="mb-3 fw-bold text-primary"></div>
+      <table class="table table-bordered mt-3">
+        <thead class="table-light">
+          <tr><th>Tgl</th><th>Kelas</th><th>Mapel</th><th>Jam</th><th>Materi</th><th>Catatan</th><th>JP</th></tr>
+        </thead>
+        <tbody id="tbRekapGuru"><tr><td colspan="7" class="text-center text-muted">Silakan pilih filter rekap.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL TAMBAH MATERI -->
+<div class="modal fade" id="modalMateri" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Tambah Materi Baru</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">Mapel</label>
+          <select id="modalOptMapel" class="form-select"></select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Materi Pokok</label>
+          <input type="text" id="modalMateriPokok" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Sub Topik</label>
+          <input type="text" id="modalSubTopik" class="form-control" required>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="simpanMateriBaru()">Simpan ke Sheet</button>
       </div>
     </div>
-  </header>
+  </div>
+</div>
 
-  <!-- Content -->
-  <main class="max-w-6xl mx-auto p-4 sm:p-6 space-y-6">
-    
-    <!-- URL Configuration Box (Opsional: Jika belum di-hardcode) -->
-    <div id="urlConfigBox" class="bg-amber-50 border border-amber-200 p-4 rounded-xl text-xs space-y-2">
-      <label class="font-bold text-amber-900 block">URL Web App Google Apps Script:</label>
-      <div class="flex gap-2">
-        <input type="text" id="scriptUrlInput" placeholder="https://script.google.com/macros/s/AKfycbyEf-WOvNqH9q8GqikyrS9Mx0d8pcU07R5eVKjhw0nDXuCdpil2oZ95Jbqx2T15QdwnXQ/exec" 
-          class="w-full p-2 border rounded-lg font-mono text-xs">
-        <button onclick="saveScriptUrl()" class="bg-amber-700 text-white px-4 py-2 rounded-lg font-semibold">Simpan</button>
-      </div>
-      <p class="text-amber-700">*Masukkan URL Web App hasil Deploy Google Apps Script Anda (AKSES: Anyone / Siapa Saja).</p>
-    </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // PASTA URL APPS SCRIPT BERAKHIRAN /exec KAMU DI SINI
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyEf-WOvNqH9q8GqikyrS9Mx0d8pcU07R5eVKjhw0nDXuCdpil2oZ95Jbqx2T15QdwnXQ/exec';
 
-    <!-- Navigation Tabs -->
-    <div class="flex border-b border-slate-300 gap-2">
-      <button onclick="switchTab('input')" id="tabBtnInput" class="py-2 px-4 font-semibold text-indigo-600 border-b-2 border-indigo-600">
-        Input Jurnal & Presensi
-      </button>
-      <button onclick="switchTab('rekapSiswa')" id="tabBtnRekapSiswa" class="py-2 px-4 font-semibold text-slate-500 hover:text-indigo-600">
-        Rekap Presensi Siswa
-      </button>
-      <button onclick="switchTab('rekapGuru')" id="tabBtnRekapGuru" class="py-2 px-4 font-semibold text-slate-500 hover:text-indigo-600">
-        Rekap Jurnal Guru
-      </button>
-    </div>
+  let rawData = { gurus: [], kelases: [], mapels: [], materis: [], siswas: [] };
 
-    <!-- Alert Box -->
-    <div id="alertBox" class="hidden p-4 rounded-lg text-sm font-medium"></div>
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('tglKbm').valueAsDate = new Date();
+    initData();
+  });
 
-    <!-- TAB 1: FORM INPUT JURNAL & PRESENSI -->
-    <section id="tabInput" class="space-y-6">
-      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-        <h2 class="text-lg font-bold mb-4 text-slate-700">Form Jurnal Kegiatan Belajar Mengajar</h2>
-        
-        <form id="formJurnal" onsubmit="submitJurnal(event)" class="space-y-4">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal</label>
-              <input type="date" id="inputTanggal" required class="w-full p-2 border border-slate-300 rounded-lg text-sm">
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Guru</label>
-              <select id="selectGuru" required class="w-full p-2 border border-slate-300 rounded-lg text-sm">
-                <option value="">-- Pilih Guru --</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Kelas</label>
-              <select id="selectKelas" onchange="renderDaftarSiswa()" required class="w-full p-2 border border-slate-300 rounded-lg text-sm">
-                <option value="">-- Pilih Kelas --</option>
-              </select>
-            </div>
-          </div>
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-section').forEach(el => el.classList.add('d-none'));
+    document.querySelectorAll('#mainNav .nav-link').forEach(el => el.classList.remove('active'));
+    document.getElementById('sec-' + tab).classList.remove('d-none');
+    event.target.classList.add('active');
+  }
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Mata Pelajaran</label>
-              <select id="selectMapel" onchange="filterMateri()" required class="w-full p-2 border border-slate-300 rounded-lg text-sm">
-                <option value="">-- Pilih Mapel --</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Jam Ke- (Misal: 1-2 atau 1-3)</label>
-              <input type="text" id="inputJamKe" placeholder="Contoh: 1-2" required class="w-full p-2 border border-slate-300 rounded-lg text-sm">
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Materi Pokok / Sub Topik</label>
-              <select id="selectMateri" required class="w-full p-2 border border-slate-300 rounded-lg text-sm">
-                <option value="">-- Pilih Materi --</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Catatan Pelaksanaan KBM</label>
-            <textarea id="inputCatatan" rows="2" placeholder="Catatan kelas, hambatan, dll." class="w-full p-2 border border-slate-300 rounded-lg text-sm"></textarea>
-          </div>
-
-          <!-- Tabel Presensi Siswa -->
-          <div class="pt-4 border-t border-slate-200">
-            <h3 class="text-md font-bold mb-2 text-slate-700">Presensi Kehadiran Siswa</h3>
-            <div class="overflow-x-auto">
-              <table class="w-full text-left text-sm border-collapse">
-                <thead>
-                  <tr class="bg-slate-100 text-slate-600 text-xs uppercase">
-                    <th class="p-2 border">NIS</th>
-                    <th class="p-2 border">Nama Siswa</th>
-                    <th class="p-2 border text-center">Status (H / S / I / A)</th>
-                  </tr>
-                </thead>
-                <tbody id="tbodyPresensi">
-                  <tr><td colspan="3" class="p-4 text-center text-slate-400">Pilih kelas terlebih dahulu.</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div class="flex justify-end pt-4">
-            <button type="submit" id="btnSubmit" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition">
-              Simpan Jurnal & Presensi
-            </button>
-          </div>
-        </form>
-      </div>
-    </section>
-
-    <!-- TAB 2: REKAP PRESENSI SISWA -->
-    <section id="tabRekapSiswa" class="hidden space-y-4">
-      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
-        <h2 class="text-lg font-bold text-slate-700">Rekap Presensi Siswa Per Kelas</h2>
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <select id="rekapKelasId" class="p-2 border border-slate-300 rounded-lg text-sm">
-            <option value="">-- Pilih Kelas --</option>
-          </select>
-          <input type="date" id="rekapSiswaTglAwal" class="p-2 border border-slate-300 rounded-lg text-sm">
-          <input type="date" id="rekapSiswaTglAkhir" class="p-2 border border-slate-300 rounded-lg text-sm">
-          <button onclick="fetchRekapSiswa()" class="bg-indigo-600 text-white rounded-lg font-semibold text-sm py-2">Tampilkan Rekap</button>
-        </div>
-
-        <div class="overflow-x-auto pt-2">
-          <table class="w-full text-left text-sm border-collapse">
-            <thead>
-              <tr class="bg-slate-100 text-slate-600 text-xs uppercase">
-                <th class="p-2 border">NIS</th>
-                <th class="p-2 border">Nama</th>
-                <th class="p-2 border text-center">Hadir (H)</th>
-                <th class="p-2 border text-center">Sakit (S)</th>
-                <th class="p-2 border text-center">Izin (I)</th>
-                <th class="p-2 border text-center">Alpa (A)</th>
-              </tr>
-            </thead>
-            <tbody id="tbodyRekapSiswa">
-              <tr><td colspan="6" class="p-4 text-center text-slate-400">Silakan tentukan filter dan klik Tampilkan Rekap.</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- TAB 3: REKAP JURNAL GURU -->
-    <section id="tabRekapGuru" class="hidden space-y-4">
-      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
-        <h2 class="text-lg font-bold text-slate-700">Rekap Jurnal KBM Guru</h2>
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <select id="rekapNip" class="p-2 border border-slate-300 rounded-lg text-sm">
-            <option value="">-- Pilih Guru --</option>
-          </select>
-          <input type="date" id="rekapGuruTglAwal" class="p-2 border border-slate-300 rounded-lg text-sm">
-          <input type="date" id="rekapGuruTglAkhir" class="p-2 border border-slate-300 rounded-lg text-sm">
-          <button onclick="fetchRekapGuru()" class="bg-indigo-600 text-white rounded-lg font-semibold text-sm py-2">Tampilkan Jurnal</button>
-        </div>
-
-        <div id="statGuru" class="hidden grid-cols-2 gap-4 bg-indigo-50 p-4 rounded-lg">
-          <div><span class="text-xs text-slate-500">Total Sesi Mengajar:</span> <b id="statSesi" class="text-indigo-700">0</b></div>
-          <div><span class="text-xs text-slate-500">Total Jam Pelajaran (JP):</span> <b id="statJP" class="text-indigo-700">0</b></div>
-        </div>
-
-        <div class="overflow-x-auto pt-2">
-          <table class="w-full text-left text-sm border-collapse">
-            <thead>
-              <tr class="bg-slate-100 text-slate-600 text-xs uppercase">
-                <th class="p-2 border">Tgl</th>
-                <th class="p-2 border">Kelas</th>
-                <th class="p-2 border">Mapel</th>
-                <th class="p-2 border">Jam Ke</th>
-                <th class="p-2 border">Total JP</th>
-                <th class="p-2 border">Materi & Catatan</th>
-              </tr>
-            </thead>
-            <tbody id="tbodyRekapGuru">
-              <tr><td colspan="6" class="p-4 text-center text-slate-400">Silakan tentukan filter dan klik Tampilkan Jurnal.</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <script>
-    // MASUKKAN URL EXEC WEB APP APPS SCRIPT ANDA DI SINI
-    let SCRIPT_URL = localStorage.getItem('APPS_SCRIPT_URL') || '';
-
-    let masterData = { gurus: [], kelases: [], mapels: [], materis: [], siswas: [] };
-
-    document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('inputTanggal').valueAsDate = new Date();
-      if (SCRIPT_URL) {
-        document.getElementById('scriptUrlInput').value = SCRIPT_URL;
-        loadInitialData();
-      } else {
-        document.getElementById('loadingMaster').innerHTML = `<span class="w-2 h-2 bg-rose-400 rounded-full"></span><span>URL Belum Diset</span>`;
-      }
-    });
-
-    function saveScriptUrl() {
-      const url = document.getElementById('scriptUrlInput').value.trim();
-      if (!url) return alert('Masukkan URL Web App terlebih dahulu!');
-      localStorage.setItem('APPS_SCRIPT_URL', url);
-      SCRIPT_URL = url;
-      loadInitialData();
-    }
-
-    // 1. Fetch Master Data dari Apps Script (doGet)
-    function loadInitialData() {
-      document.getElementById('loadingMaster').innerHTML = `<span class="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></span><span>Memuat Data...</span>`;
-      
-      fetch(`${SCRIPT_URL}?action=getInitialData`)
-        .then(res => res.json())
-        .then(res => {
-          if (res.status === 'success') {
-            masterData = res.data;
-            populateDropdowns();
-            document.getElementById('loadingMaster').innerHTML = `<span class="w-2 h-2 bg-emerald-400 rounded-full"></span><span>Terhubung</span>`;
-            document.getElementById('urlConfigBox').classList.add('hidden');
-          }
-        })
-        .catch(err => {
-          showError('Gagal terhubung ke Google Apps Script. Pastikan URL benar.');
-          document.getElementById('loadingMaster').innerHTML = `<span class="w-2 h-2 bg-rose-400 rounded-full"></span><span>Error Koneksi</span>`;
-        });
-    }
-
-    function populateDropdowns() {
-      const gSel = document.getElementById('selectGuru');
-      const gRekapSel = document.getElementById('rekapNip');
-      gSel.innerHTML = '<option value="">-- Pilih Guru --</option>';
-      gRekapSel.innerHTML = '<option value="">-- Pilih Guru --</option>';
-      masterData.gurus.forEach(g => {
-        gSel.innerHTML += `<option value="${g.nip}">${g.nama}</option>`;
-        gRekapSel.innerHTML += `<option value="${g.nip}">${g.nama}</option>`;
-      });
-
-      const kSel = document.getElementById('selectKelas');
-      const kRekapSel = document.getElementById('rekapKelasId');
-      kSel.innerHTML = '<option value="">-- Pilih Kelas --</option>';
-      kRekapSel.innerHTML = '<option value="">-- Pilih Kelas --</option>';
-      masterData.kelases.forEach(k => {
-        kSel.innerHTML += `<option value="${k.id}">${k.nama}</option>`;
-        kRekapSel.innerHTML += `<option value="${k.id}">${k.nama}</option>`;
-      });
-
-      const mSel = document.getElementById('selectMapel');
-      mSel.innerHTML = '<option value="">-- Pilih Mapel --</option>';
-      masterData.mapels.forEach(m => {
-        mSel.innerHTML += `<option value="${m.id}">${m.nama}</option>`;
-      });
-    }
-
-    function filterMateri() {
-      const mapelId = document.getElementById('selectMapel').value;
-      const mtSel = document.getElementById('selectMateri');
-      mtSel.innerHTML = '<option value="">-- Pilih Materi --</option>';
-      
-      const filtered = masterData.materis.filter(m => m.idMapel === mapelId);
-      filtered.forEach(m => {
-        mtSel.innerHTML += `<option value="${m.materiPokok} - ${m.subTopik}">${m.materiPokok} (${m.subTopik})</option>`;
-      });
-    }
-
-    function renderDaftarSiswa() {
-      const kelasId = document.getElementById('selectKelas').value;
-      const tbody = document.getElementById('tbodyPresensi');
-      tbody.innerHTML = '';
-
-      const filtered = masterData.siswas.filter(s => s.kelasId === kelasId);
-      if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-slate-400">Tidak ada data siswa di kelas ini.</td></tr>';
-        return;
-      }
-
-      filtered.forEach(s => {
-        tbody.innerHTML += `
-          <tr class="border-b">
-            <td class="p-2 border font-mono text-xs">${s.nis}</td>
-            <td class="p-2 border font-medium">${s.nama}</td>
-            <td class="p-2 border text-center">
-              <div class="flex justify-center gap-4 text-xs">
-                <label><input type="radio" name="st_${s.nis}" value="H" checked> H</label>
-                <label><input type="radio" name="st_${s.nis}" value="S"> S</label>
-                <label><input type="radio" name="st_${s.nis}" value="I"> I</label>
-                <label><input type="radio" name="st_${s.nis}" value="A"> A</label>
-              </div>
-            </td>
-          </tr>
-        `;
-      });
-    }
-
-    // 2. Kirim Data Jurnal via Fetch (doPost)
-    function submitJurnal(e) {
-      e.preventDefault();
-      const kelasId = document.getElementById('selectKelas').value;
-      const filteredSiswa = masterData.siswas.filter(s => s.kelasId === kelasId);
-
-      const presensiData = filteredSiswa.map(s => {
-        const checkedVal = document.querySelector(`input[name="st_${s.nis}"]:checked`)?.value || 'H';
-        return { nis: s.nis, nama: s.nama, status: checkedVal };
-      });
-
-      const payload = {
-        tanggal: document.getElementById('inputTanggal').value,
-        nip: document.getElementById('selectGuru').value,
-        kelasId: kelasId,
-        mapelId: document.getElementById('selectMapel').value,
-        jamKe: document.getElementById('inputJamKe').value,
-        materiId: document.getElementById('selectMateri').value,
-        catatan: document.getElementById('inputCatatan').value,
-        presensi: presensiData
-      };
-
-      document.getElementById('btnSubmit').disabled = true;
-      document.getElementById('btnSubmit').textContent = 'Menyimpan...';
-
-      fetch(SCRIPT_URL, {
-        method: 'POST',
-        body: JSON.stringify(payload)
-      })
+  function initData() {
+    fetch(`${SCRIPT_URL}?action=getInitialData`)
       .then(res => res.json())
       .then(res => {
-        document.getElementById('btnSubmit').disabled = false;
-        document.getElementById('btnSubmit').textContent = 'Simpan Jurnal & Presensi';
-        if (res.status === 'success') {
-          showAlert('Jurnal & Presensi berhasil disimpan!', 'success');
-          document.getElementById('formJurnal').reset();
-          document.getElementById('tbodyPresensi').innerHTML = '<tr><td colspan="3" class="p-4 text-center text-slate-400">Pilih kelas terlebih dahulu.</td></tr>';
-        } else {
-          showError(res.message);
+        if(res.status === 'success') {
+          rawData = res.data;
+          populateDropdowns();
         }
-      })
-      .catch(err => {
-        document.getElementById('btnSubmit').disabled = false;
-        document.getElementById('btnSubmit').textContent = 'Simpan Jurnal & Presensi';
-        showError('Gagal mengirim data.');
       });
+  }
+
+  function populateDropdowns() {
+    const fill = (id, list, keyVal, keyTxt) => {
+      let el = document.getElementById(id);
+      el.innerHTML = '<option value="">-- Pilih --</option>';
+      list.forEach(i => el.innerHTML += `<option value="${i[keyVal]}">${i[keyTxt]}</option>`);
+    };
+
+    fill('optGuru', rawData.gurus, 'nip', 'nama');
+    fill('rekapOptGuru', rawData.gurus, 'nip', 'nama');
+    fill('optKelas', rawData.kelases, 'id', 'nama');
+    fill('rekapOptKelas', rawData.kelases, 'id', 'nama');
+    fill('optMapel', rawData.mapels, 'id', 'nama');
+    fill('modalOptMapel', rawData.mapels, 'id', 'nama');
+  }
+
+  function hitungJP() {
+    let jamStr = document.getElementById('jamKe').value.trim();
+    if(jamStr.includes('-')) {
+      let p = jamStr.split('-');
+      let awal = parseInt(p[0]), akhir = parseInt(p[1]);
+      document.getElementById('totalJp').value = (!isNaN(awal) && !isNaN(akhir)) ? Math.abs(akhir - awal) + 1 : 0;
+    } else {
+      document.getElementById('totalJp').value = !isNaN(parseInt(jamStr)) ? 1 : 0;
+    }
+  }
+
+  function filterMateri() {
+    let mapelId = document.getElementById('optMapel').value;
+    let optMateri = document.getElementById('optMateri');
+    optMateri.innerHTML = '<option value="">-- Pilih Materi --</option>';
+    
+    let filtered = rawData.materis.filter(m => m.idMapel === mapelId);
+    filtered.forEach(m => {
+      optMateri.innerHTML += `<option value="${m.materiPokok}" data-sub="${m.subTopik}">${m.materiPokok}</option>`;
+    });
+  }
+
+  function updateSubTopik() {
+    let opt = document.getElementById('optMateri').selectedOptions[0];
+    document.getElementById('subTopikVal').value = opt ? (opt.getAttribute('data-sub') || '-') : '-';
+  }
+
+  function loadSiswaByKelas() {
+    let kls = document.getElementById('optKelas').value;
+    let tbody = document.getElementById('tbPresensi');
+    tbody.innerHTML = '';
+    
+    let filtered = rawData.siswas.filter(s => s.kelasId === kls);
+    if(filtered.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Tidak ada data siswa di kelas ini.</td></tr>';
+      return;
     }
 
-    // 3. Fetch Rekap Siswa (doGet)
-    function fetchRekapSiswa() {
-      const kelasId = document.getElementById('rekapKelasId').value;
-      const tglAwal = document.getElementById('rekapSiswaTglAwal').value;
-      const tglAkhir = document.getElementById('rekapSiswaTglAkhir').value;
+    filtered.forEach((s, idx) => {
+      tbody.innerHTML += `
+        <tr>
+          <td>${idx + 1}</td>
+          <td>${s.nis}</td>
+          <td>${s.nama}</td>
+          <td class="text-center">
+            <input type="hidden" class="p-nis" value="${s.nis}">
+            <input type="hidden" class="p-nama" value="${s.nama}">
+            <div class="btn-group" role="group">
+              <input type="radio" class="btn-check" name="st_${s.nis}" id="h_${s.nis}" value="H" checked>
+              <label class="btn btn-outline-success btn-sm" for="h_${s.nis}">H</label>
+              <input type="radio" class="btn-check" name="st_${s.nis}" id="s_${s.nis}" value="S">
+              <label class="btn btn-outline-warning btn-sm" for="s_${s.nis}">S</label>
+              <input type="radio" class="btn-check" name="st_${s.nis}" id="i_${s.nis}" value="I">
+              <label class="btn btn-outline-info btn-sm" for="i_${s.nis}">I</label>
+              <input type="radio" class="btn-check" name="st_${s.nis}" id="a_${s.nis}" value="A">
+              <label class="btn btn-outline-danger btn-sm" for="a_${s.nis}">A</label>
+            </div>
+          </td>
+        </tr>`;
+    });
+  }
 
-      if (!kelasId) return alert('Pilih kelas terlebih dahulu.');
+  function simpanMateriBaru() {
+    let payload = {
+      action: 'addMateri',
+      mapelId: document.getElementById('modalOptMapel').value,
+      materiPokok: document.getElementById('modalMateriPokok').value,
+      subTopik: document.getElementById('modalSubTopik').value
+    };
 
-      fetch(`${SCRIPT_URL}?action=getRekapSiswa&kelasId=${encodeURIComponent(kelasId)}&tglAwal=${tglAwal}&tglAkhir=${tglAkhir}`)
-        .then(res => res.json())
-        .then(res => {
-          const tbody = document.getElementById('tbodyRekapSiswa');
-          tbody.innerHTML = '';
-          if (res.status === 'success' && res.detailSiswa.length > 0) {
-            res.detailSiswa.forEach(s => {
-              tbody.innerHTML += `
-                <tr class="border-b text-center">
-                  <td class="p-2 border font-mono text-xs text-left">${s.nis}</td>
-                  <td class="p-2 border text-left font-medium">${s.nama}</td>
-                  <td class="p-2 border text-emerald-600 font-bold">${s.h}</td>
-                  <td class="p-2 border text-amber-600 font-bold">${s.s}</td>
-                  <td class="p-2 border text-blue-600 font-bold">${s.i}</td>
-                  <td class="p-2 border text-rose-600 font-bold">${s.a}</td>
-                </tr>
-              `;
-            });
-          } else {
-            tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-400">Data presensi tidak ditemukan.</td></tr>';
-          }
-        })
-        .catch(err => showError('Gagal mengambil data rekap siswa.'));
-    }
+    fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
+      .then(r => r.json())
+      .then(res => {
+        alert(res.message);
+        bootstrap.Modal.getInstance(document.getElementById('modalMateri')).hide();
+        initData();
+      });
+  }
 
-    // 4. Fetch Rekap Guru (doGet)
-    function fetchRekapGuru() {
-      const nip = document.getElementById('rekapNip').value;
-      const tglAwal = document.getElementById('rekapGuruTglAwal').value;
-      const tglAkhir = document.getElementById('rekapGuruTglAkhir').value;
+  function simpanJurnal() {
+    let presensiArr = [];
+    document.querySelectorAll('#tbPresensi tr').forEach(row => {
+      let nis = row.querySelector('.p-nis')?.value;
+      let nama = row.querySelector('.p-nama')?.value;
+      let status = row.querySelector(`input[name="st_${nis}"]:checked`)?.value;
+      if(nis) presensiArr.push({ nis, nama, status });
+    });
 
-      if (!nip) return alert('Pilih guru terlebih dahulu.');
+    let payload = {
+      tanggal: document.getElementById('tglKbm').value,
+      nip: document.getElementById('optGuru').value,
+      kelasId: document.getElementById('optKelas').value,
+      mapelId: document.getElementById('optMapel').value,
+      jamKe: document.getElementById('jamKe').value,
+      materiId: document.getElementById('optMateri').value,
+      catatan: document.getElementById('catatanKbm').value,
+      presensi: presensiArr
+    };
 
-      fetch(`${SCRIPT_URL}?action=getRekapGuru&nip=${encodeURIComponent(nip)}&tglAwal=${tglAwal}&tglAkhir=${tglAkhir}`)
-        .then(res => res.json())
-        .then(res => {
-          const tbody = document.getElementById('tbodyRekapGuru');
-          const statBox = document.getElementById('statGuru');
-          tbody.innerHTML = '';
+    fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
+      .then(r => r.json())
+      .then(res => {
+        alert(res.message);
+        location.reload();
+      });
+  }
 
-          if (res.status === 'success' && res.jurnal.length > 0) {
-            statBox.classList.remove('hidden');
-            statBox.classList.add('grid');
-            document.getElementById('statSesi').textContent = res.statistik.totalSesi;
-            document.getElementById('statJP').textContent = res.statistik.totalJP;
+  function fetchRekapSiswa() {
+    let kls = document.getElementById('rekapOptKelas').value;
+    let tglAwal = document.getElementById('rekapSiswaAwal').value;
+    let tglAkhir = document.getElementById('rekapSiswaAkhir').value;
 
-            res.jurnal.forEach(j => {
-              tbody.innerHTML += `
-                <tr class="border-b">
-                  <td class="p-2 border text-xs">${j.tanggal}</td>
-                  <td class="p-2 border font-medium">${j.kelas}</td>
-                  <td class="p-2 border">${j.mapel}</td>
-                  <td class="p-2 border text-center">${j.jamKe}</td>
-                  <td class="p-2 border text-center font-bold text-indigo-600">${j.totalJP}</td>
-                  <td class="p-2 border text-xs"><b>${j.materi}</b><br><span class="text-slate-500">${j.catatan}</span></td>
-                </tr>
-              `;
-            });
-          } else {
-            statBox.classList.add('hidden');
-            tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-400">Data jurnal tidak ditemukan.</td></tr>';
-          }
-        })
-        .catch(err => showError('Gagal mengambil data rekap guru.'));
-    }
+    fetch(`${SCRIPT_URL}?action=getRekapSiswa&kelasId=${kls}&tglAwal=${tglAwal}&tglAkhir=${tglAkhir}`)
+      .then(r => r.json())
+      .then(res => {
+        let tbody = document.getElementById('tbRekapSiswa');
+        tbody.innerHTML = '';
+        res.detailSiswa.forEach(s => {
+          tbody.innerHTML += `<tr><td>${s.nis}</td><td>${s.nama}</td><td>${s.h}</td><td>${s.i}</td><td>${s.s}</td><td>${s.a}</td></tr>`;
+        });
+      });
+  }
 
-    // Helper UI & Navigation
-    function switchTab(tab) {
-      document.getElementById('tabInput').classList.toggle('hidden', tab !== 'input');
-      document.getElementById('tabRekapSiswa').classList.toggle('hidden', tab !== 'rekapSiswa');
-      document.getElementById('tabRekapGuru').classList.toggle('hidden', tab !== 'rekapGuru');
-    }
+  function fetchRekapGuru() {
+    let nip = document.getElementById('rekapOptGuru').value;
+    let tglAwal = document.getElementById('rekapGuruAwal').value;
+    let tglAkhir = document.getElementById('rekapGuruAkhir').value;
 
-    function showAlert(msg, type) {
-      const box = document.getElementById('alertBox');
-      box.textContent = msg;
-      box.className = `p-4 rounded-lg text-sm font-medium ${type === 'success' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`;
-      box.classList.remove('hidden');
-      setTimeout(() => box.classList.add('hidden'), 4000);
-    }
-
-    function showError(err) {
-      showAlert('Error: ' + (err.message || err), 'error');
-    }
-  </script>
+    fetch(`${SCRIPT_URL}?action=getRekapGuru&nip=${nip}&tglAwal=${tglAwal}&tglAkhir=${tglAkhir}`)
+      .then(r => r.json())
+      .then(res => {
+        document.getElementById('statGuruInfo').innerText = `Total Sesi: ${res.statistik.totalSesi} | Total JP: ${res.statistik.totalJP}`;
+        let tbody = document.getElementById('tbRekapGuru');
+        tbody.innerHTML = '';
+        res.jurnal.forEach(j => {
+          tbody.innerHTML += `<tr><td>${j.tanggal}</td><td>${j.kelas}</td><td>${j.mapel}</td><td>${j.jamKe}</td><td>${j.materi}</td><td>${j.catatan}</td><td>${j.totalJP}</td></tr>`;
+        });
+      });
+  }
+</script>
 </body>
 </html>
