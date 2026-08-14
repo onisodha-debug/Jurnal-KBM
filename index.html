@@ -9,17 +9,20 @@
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    body { background-color: #f8f9fa; }
-    .nav-pills .nav-link.active { background-color: #0d6efd; }
-    .card { border-radius: 10px; border: none; }
+    body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    .nav-pills .nav-link { color: #495057; font-weight: 500; border-radius: 8px; padding: 10px 20px; }
+    .nav-pills .nav-link.active { background-color: #0d6efd; color: #fff; }
+    .card { border-radius: 12px; border: none; }
+    .table-responsive { max-height: 500px; overflow-y: auto; }
+    .sticky-top-header { position: sticky; top: 0; z-index: 2; background-color: #f8f9fa; }
   </style>
 </head>
 <body>
 
-<nav class="navbar navbar-dark bg-primary mb-4 shadow-sm">
-  <div class="container-fluid">
-    <span class="navbar-brand mb-0 h1">
-      <i class="fa-solid fa-book-bookmark me-2"></i>SIM Jurnal KBM & Presensi
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
+  <div class="container-fluid container">
+    <span class="navbar-brand fw-bold mb-0 h1">
+      <i class="fa-solid fa-book-bookmark me-2"></i>SIM Jurnal KBM & Presensi Siswa
     </span>
   </div>
 </nav>
@@ -54,49 +57,49 @@
           <!-- Form Informasi KBM -->
           <div class="col-md-5 mb-4">
             <div class="card shadow-sm h-100">
-              <div class="card-header bg-white fw-bold">
+              <div class="card-header bg-white fw-bold py-3">
                 <i class="fa-solid fa-circle-info text-primary me-2"></i>Informasi Pembelajaran
               </div>
               <div class="card-body">
                 <div class="mb-3">
-                  <label class="form-label">Tanggal</label>
+                  <label class="form-label fw-semibold">Tanggal</label>
                   <input type="date" class="form-control" id="inpTanggal" required>
                 </div>
                 <div class="mb-3">
-                  <label class="form-label">Guru / Pengajar</label>
+                  <label class="form-label fw-semibold">Guru / Pengajar</label>
                   <select class="form-select" id="inpGuru" required>
                     <option value="">-- Pilih Guru --</option>
                   </select>
                 </div>
                 <div class="mb-3">
-                  <label class="form-label">Kelas</label>
+                  <label class="form-label fw-semibold">Kelas</label>
                   <select class="form-select" id="inpKelas" onchange="onKelasChange()" required>
                     <option value="">-- Pilih Kelas --</option>
                   </select>
                 </div>
                 <div class="mb-3">
-                  <label class="form-label">Mata Pelajaran</label>
+                  <label class="form-label fw-semibold">Mata Pelajaran</label>
                   <select class="form-select" id="inpMapel" required>
                     <option value="">-- Pilih Mapel --</option>
                   </select>
                 </div>
                 <div class="row">
                   <div class="col-6 mb-3">
-                    <label class="form-label">Jam Ke-</label>
+                    <label class="form-label fw-semibold">Jam Ke-</label>
                     <input type="text" class="form-control" id="inpJamKe" placeholder="1-2" required>
                   </div>
                   <div class="col-6 mb-3">
-                    <label class="form-label">Total JP</label>
+                    <label class="form-label fw-semibold">Total JP</label>
                     <input type="number" class="form-control" id="inpTotalJP" value="2" min="1" required>
                   </div>
                 </div>
                 <div class="mb-3">
-                  <label class="form-label">Materi / Sub Materi</label>
-                  <textarea class="form-control" id="inpMateri" rows="2" placeholder="Tuliskan materi pembelajaran..." required></textarea>
+                  <label class="form-label fw-semibold">Materi / Sub Materi</label>
+                  <textarea class="form-control" id="inpMateri" rows="3" placeholder="Tuliskan materi pembelajaran..." required></textarea>
                 </div>
                 <div class="mb-3">
-                  <label class="form-label">Catatan / Hambatan (Opsional)</label>
-                  <textarea class="form-control" id="inpCatatan" rows="2"></textarea>
+                  <label class="form-label fw-semibold">Catatan / Hambatan (Opsional)</label>
+                  <textarea class="form-control" id="inpCatatan" rows="2" placeholder="Catatan kendala atau siswa khusus..."></textarea>
                 </div>
               </div>
             </div>
@@ -105,33 +108,35 @@
           <!-- Form Tabel Presensi Siswa -->
           <div class="col-md-7 mb-4">
             <div class="card shadow-sm h-100">
-              <div class="card-header bg-white d-flex justify-content-between align-items-center">
+              <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
                 <span class="fw-bold"><i class="fa-solid fa-users text-primary me-2"></i>Presensi Siswa</span>
                 <div>
-                  <button type="button" class="btn btn-sm btn-outline-success me-1" onclick="setAllStatus('H')">Semua H</button>
+                  <button type="button" class="btn btn-sm btn-outline-success" onclick="setAllStatus('H')">
+                    <i class="fa-solid fa-check-double me-1"></i> Set Semua Hadir
+                  </button>
                 </div>
               </div>
               <div class="card-body p-0">
-                <div class="table-responsive" style="max-height: 480px; overflow-y: auto;">
+                <div class="table-responsive">
                   <table class="table table-hover table-striped align-middle mb-0">
-                    <thead class="table-light sticky-top">
+                    <thead class="table-light sticky-top-header">
                       <tr>
-                        <th style="width: 50px;">No</th>
+                        <th style="width: 50px;" class="text-center">No</th>
                         <th>NIS</th>
                         <th>Nama Siswa</th>
-                        <th class="text-center" style="width: 200px;">Status</th>
+                        <th class="text-center" style="width: 210px;">Status Presensi</th>
                       </tr>
                     </thead>
                     <tbody id="tbodyPresensiSiswa">
                       <tr>
-                        <td colspan="4" class="text-center text-muted py-4">Pilih kelas terlebih dahulu untuk menampilkan daftar siswa.</td>
+                        <td colspan="4" class="text-center text-muted py-5">Pilih kelas terlebih dahulu untuk menampilkan daftar siswa.</td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
               </div>
-              <div class="card-footer bg-white text-end">
-                <button type="submit" class="btn btn-primary px-4" id="btnSimpan">
+              <div class="card-footer bg-white text-end py-3">
+                <button type="submit" class="btn btn-primary px-4 fw-semibold" id="btnSimpan">
                   <i class="fa-solid fa-floppy-disk me-1"></i> Simpan Jurnal & Presensi
                 </button>
               </div>
@@ -147,21 +152,21 @@
         <div class="card-body">
           <div class="row g-3 align-items-end">
             <div class="col-md-3">
-              <label class="form-label">Pilih Kelas</label>
+              <label class="form-label fw-semibold">Pilih Kelas</label>
               <select class="form-select" id="rekapKelasSelect">
                 <option value="">-- Pilih Kelas --</option>
               </select>
             </div>
             <div class="col-md-3">
-              <label class="form-label">Tanggal Awal</label>
+              <label class="form-label fw-semibold">Tanggal Awal</label>
               <input type="date" class="form-control" id="rekapTglAwal">
             </div>
             <div class="col-md-3">
-              <label class="form-label">Tanggal Akhir</label>
+              <label class="form-label fw-semibold">Tanggal Akhir</label>
               <input type="date" class="form-control" id="rekapTglAkhir">
             </div>
             <div class="col-md-3">
-              <button type="button" class="btn btn-primary w-100" onclick="loadRekapSiswa()">
+              <button type="button" class="btn btn-primary w-100 fw-semibold" onclick="loadRekapSiswa()">
                 <i class="fa-solid fa-magnifying-glass me-1"></i> Tampilkan Rekap
               </button>
             </div>
@@ -178,15 +183,15 @@
                   <th style="width: 50px;">No</th>
                   <th>NIS</th>
                   <th>Nama Siswa</th>
-                  <th style="width: 80px;" class="bg-success text-white">Hadir (H)</th>
-                  <th style="width: 80px;" class="bg-info text-white">Izin (I)</th>
-                  <th style="width: 80px;" class="bg-warning text-dark">Sakit (S)</th>
-                  <th style="width: 80px;" class="bg-danger text-white">Alpha (A)</th>
+                  <th style="width: 90px;" class="bg-success text-white">Hadir (H)</th>
+                  <th style="width: 90px;" class="bg-info text-white">Izin (I)</th>
+                  <th style="width: 90px;" class="bg-warning text-dark">Sakit (S)</th>
+                  <th style="width: 90px;" class="bg-danger text-white">Alpha (A)</th>
                 </tr>
               </thead>
               <tbody id="tbodyRekapSiswa">
                 <tr>
-                  <td colspan="7" class="text-center text-muted py-4">Silakan tentukan parameter kelas dan rentang tanggal di atas.</td>
+                  <td colspan="7" class="text-center text-muted py-5">Silakan tentukan kelas dan rentang tanggal di atas.</td>
                 </tr>
               </tbody>
             </table>
@@ -201,21 +206,21 @@
         <div class="card-body">
           <div class="row g-3 align-items-end">
             <div class="col-md-3">
-              <label class="form-label">Pilih Guru</label>
+              <label class="form-label fw-semibold">Pilih Guru</label>
               <select class="form-select" id="rekapGuruSelect">
                 <option value="">-- Pilih Guru --</option>
               </select>
             </div>
             <div class="col-md-3">
-              <label class="form-label">Tanggal Awal</label>
+              <label class="form-label fw-semibold">Tanggal Awal</label>
               <input type="date" class="form-control" id="rekapGuruTglAwal">
             </div>
             <div class="col-md-3">
-              <label class="form-label">Tanggal Akhir</label>
+              <label class="form-label fw-semibold">Tanggal Akhir</label>
               <input type="date" class="form-control" id="rekapGuruTglAkhir">
             </div>
             <div class="col-md-3">
-              <button type="button" class="btn btn-primary w-100" onclick="loadRekapGuru()">
+              <button type="button" class="btn btn-primary w-100 fw-semibold" onclick="loadRekapGuru()">
                 <i class="fa-solid fa-magnifying-glass me-1"></i> Tampilkan Rekap
               </button>
             </div>
@@ -227,17 +232,17 @@
       <div class="row mb-4" id="statGuruContainer" style="display: none;">
         <div class="col-md-6 mb-2">
           <div class="card bg-primary text-white shadow-sm">
-            <div class="card-body text-center">
-              <h6 class="card-title">Total Pertemuan / Sesi KBM</h6>
-              <h2 class="fw-bold mb-0" id="statTotalSesi">0</h2>
+            <div class="card-body text-center py-3">
+              <div class="small text-uppercase">Total Sesi Pertemuan</div>
+              <div class="fs-2 fw-bold" id="statTotalSesi">0</div>
             </div>
           </div>
         </div>
         <div class="col-md-6 mb-2">
           <div class="card bg-success text-white shadow-sm">
-            <div class="card-body text-center">
-              <h6 class="card-title">Total Jam Pelajaran (JP)</h6>
-              <h2 class="fw-bold mb-0" id="statTotalJP">0</h2>
+            <div class="card-body text-center py-3">
+              <div class="small text-uppercase">Total Jam Pelajaran (JP)</div>
+              <div class="fs-2 fw-bold" id="statTotalJP">0</div>
             </div>
           </div>
         </div>
@@ -249,19 +254,19 @@
             <table class="table table-bordered table-hover align-middle mb-0">
               <thead class="table-light">
                 <tr>
-                  <th style="width: 50px;">No</th>
+                  <th style="width: 50px;" class="text-center">No</th>
                   <th style="width: 110px;">Tanggal</th>
                   <th>Kelas</th>
                   <th>Mapel</th>
-                  <th style="width: 80px;">Jam Ke</th>
+                  <th style="width: 80px;" class="text-center">Jam Ke</th>
                   <th>Materi / Sub Materi</th>
                   <th>Catatan</th>
-                  <th style="width: 70px;">JP</th>
+                  <th style="width: 70px;" class="text-center">JP</th>
                 </tr>
               </thead>
               <tbody id="tbodyRekapGuru">
                 <tr>
-                  <td colspan="8" class="text-center text-muted py-4">Silakan tentukan parameter guru dan rentang tanggal di atas.</td>
+                  <td colspan="8" class="text-center text-muted py-5">Silakan tentukan guru dan rentang tanggal di atas.</td>
                 </tr>
               </tbody>
             </table>
@@ -278,21 +283,18 @@
 
 <script>
   // =========================================================================
-  // ⚠️ ISI DENGAN URL DEPLOYMENT WEB APP APPS SCRIPT-MU DI BAWAH INI:
-  // Contoh: "https://script.google.com/macros/s/AKfycbx123456789.../exec"
+  // ⚠️ PASTEKAN URL WEB APP APPS SCRIPT-MU DI BAWAH INI:
+  // Contoh: "https://script.google.com/macros/s/AKfycbx.../exec"
   // =========================================================================
   const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyEf-WOvNqH9q8GqikyrS9Mx0d8pcU07R5eVKjhw0nDXuCdpil2oZ95Jbqx2T15QdwnXQ/exec";
 
-  // Global Data Store
   var globalData = {
     gurus: [],
     kelases: [],
     mapels: [],
-    materis: [],
     siswas: []
   };
 
-  // Inisialisasi saat halaman dibuka
   document.addEventListener("DOMContentLoaded", function() {
     var today = new Date().toISOString().split('T')[0];
     document.getElementById('inpTanggal').value = today;
@@ -301,7 +303,7 @@
     document.getElementById('rekapGuruTglAwal').value = today;
     document.getElementById('rekapGuruTglAkhir').value = today;
 
-    // Fetch Initial Data via GET
+    // Fetch Data Master via Web App API
     fetch(WEB_APP_URL + "?action=getInitialData")
       .then(res => res.json())
       .then(response => {
@@ -309,10 +311,10 @@
           globalData = response.data;
           populateDropdowns();
         } else {
-          alert("Gagal memuat data awal.");
+          alert("Gagal memuat data master dari server.");
         }
       })
-      .catch(err => alert("Gagal koneksi ke Apps Script: " + err));
+      .catch(err => alert("Gagal terhubung ke Apps Script: " + err));
   });
 
   function populateDropdowns() {
@@ -321,26 +323,32 @@
     selectGuru.innerHTML = '<option value="">-- Pilih Guru --</option>';
     selectRekapGuru.innerHTML = '<option value="">-- Pilih Guru --</option>';
 
-    globalData.gurus.forEach(function(g) {
-      selectGuru.innerHTML += `<option value="${g.nip}">${g.nama}</option>`;
-      selectRekapGuru.innerHTML += `<option value="${g.nip}">${g.nama}</option>`;
-    });
+    if (globalData.gurus) {
+      globalData.gurus.forEach(function(g) {
+        selectGuru.innerHTML += `<option value="${g.nip}">${g.nama}</option>`;
+        selectRekapGuru.innerHTML += `<option value="${g.nip}">${g.nama}</option>`;
+      });
+    }
 
     var selectKelas = document.getElementById('inpKelas');
     var selectRekapKelas = document.getElementById('rekapKelasSelect');
     selectKelas.innerHTML = '<option value="">-- Pilih Kelas --</option>';
     selectRekapKelas.innerHTML = '<option value="">-- Pilih Kelas --</option>';
 
-    globalData.kelases.forEach(function(k) {
-      selectKelas.innerHTML += `<option value="${k.id}">${k.nama}</option>`;
-      selectRekapKelas.innerHTML += `<option value="${k.id}">${k.nama}</option>`;
-    });
+    if (globalData.kelases) {
+      globalData.kelases.forEach(function(k) {
+        selectKelas.innerHTML += `<option value="${k.id}">${k.nama}</option>`;
+        selectRekapKelas.innerHTML += `<option value="${k.id}">${k.nama}</option>`;
+      });
+    }
 
     var selectMapel = document.getElementById('inpMapel');
     selectMapel.innerHTML = '<option value="">-- Pilih Mapel --</option>';
-    globalData.mapels.forEach(function(m) {
-      selectMapel.innerHTML += `<option value="${m.id}">${m.nama}</option>`;
-    });
+    if (globalData.mapels) {
+      globalData.mapels.forEach(function(m) {
+        selectMapel.innerHTML += `<option value="${m.id}">${m.nama}</option>`;
+      });
+    }
   }
 
   function onKelasChange() {
@@ -349,17 +357,17 @@
     tbody.innerHTML = '';
 
     if (!selectedKelas) {
-      tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-4">Pilih kelas terlebih dahulu untuk menampilkan daftar siswa.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-5">Pilih kelas terlebih dahulu untuk menampilkan daftar siswa.</td></tr>';
       return;
     }
 
     var cleanSelected = cleanText(selectedKelas);
-    var filteredSiswa = globalData.siswas.filter(function(s) {
+    var filteredSiswa = globalData.siswas ? globalData.siswas.filter(function(s) {
       return cleanText(s.kelasId) === cleanSelected;
-    });
+    }) : [];
 
     if (filteredSiswa.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="4" class="text-center text-warning py-4">Tidak ada data siswa untuk kelas ini.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="4" class="text-center text-warning py-5">Tidak ada data siswa untuk kelas ini.</td></tr>';
       return;
     }
 
@@ -399,7 +407,7 @@
     });
   }
 
-  // Submit Simpan Jurnal & Presensi (POST)
+  // Form Submit Handler
   document.getElementById('formJurnal').addEventListener('submit', function(e) {
     e.preventDefault();
 
@@ -455,11 +463,11 @@
     .catch(err => {
       btnSimpan.disabled = false;
       btnSimpan.innerHTML = '<i class="fa-solid fa-floppy-disk me-1"></i> Simpan Jurnal & Presensi';
-      alert("Gagal menyimpan: " + err);
+      alert("Gagal menyimpan data: " + err);
     });
   });
 
-  // Load Rekap Siswa (GET)
+  // Rekap Siswa Handler
   function loadRekapSiswa() {
     var kelasId = encodeURIComponent(document.getElementById('rekapKelasSelect').value);
     var tglAwal = document.getElementById('rekapTglAwal').value;
@@ -471,7 +479,7 @@
     }
 
     var tbody = document.getElementById('tbodyRekapSiswa');
-    tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4"><span class="spinner-border spinner-border-sm me-2"></span>Memuat data rekap...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" class="text-center py-5"><span class="spinner-border spinner-border-sm me-2"></span>Memuat rekap presensi siswa...</td></tr>';
 
     var url = `${WEB_APP_URL}?action=getRekapSiswa&kelasId=${kelasId}&tglAwal=${tglAwal}&tglAkhir=${tglAkhir}`;
 
@@ -479,7 +487,7 @@
       .then(res => res.json())
       .then(renderRekapSiswa)
       .catch(err => {
-        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-danger py-4">Gagal memuat rekap.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-danger py-5">Gagal memuat data rekap.</td></tr>';
         alert("Error: " + err);
       });
   }
@@ -489,7 +497,7 @@
     tbody.innerHTML = '';
 
     if (!response || response.status !== 'success' || !response.detailSiswa || response.detailSiswa.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">Tidak ada data rekap siswa pada rentang tanggal tersebut.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-5">Tidak ada data rekap presensi pada periode tanggal ini.</td></tr>';
       return;
     }
 
@@ -509,7 +517,7 @@
     });
   }
 
-  // Load Rekap Guru (GET)
+  // Rekap Guru Handler
   function loadRekapGuru() {
     var nip = encodeURIComponent(document.getElementById('rekapGuruSelect').value);
     var tglAwal = document.getElementById('rekapGuruTglAwal').value;
@@ -521,7 +529,7 @@
     }
 
     var tbody = document.getElementById('tbodyRekapGuru');
-    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4"><span class="spinner-border spinner-border-sm me-2"></span>Memuat data KBM...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-5"><span class="spinner-border spinner-border-sm me-2"></span>Memuat data rekap KBM guru...</td></tr>';
     document.getElementById('statGuruContainer').style.display = 'none';
 
     var url = `${WEB_APP_URL}?action=getRekapGuru&nip=${nip}&tglAwal=${tglAwal}&tglAkhir=${tglAkhir}`;
@@ -530,7 +538,7 @@
       .then(res => res.json())
       .then(renderRekapGuru)
       .catch(err => {
-        tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger py-4">Gagal memuat data guru.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger py-5">Gagal memuat data rekap guru.</td></tr>';
         alert("Error: " + err);
       });
   }
@@ -540,7 +548,7 @@
     tbody.innerHTML = '';
 
     if (!response || response.status !== 'success' || !response.jurnal || response.jurnal.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">Tidak ada rekaman KBM pada rentang tanggal tersebut.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-5">Tidak ada riwayat KBM pada periode tanggal ini.</td></tr>';
       return;
     }
 
