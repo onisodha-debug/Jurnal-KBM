@@ -33,7 +33,6 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
 
-    /* Header Title Style */
     .app-header {
       text-align: center;
       margin-bottom: 25px;
@@ -57,7 +56,6 @@
       margin: 0;
     }
 
-    /* Navigasi Tab - Presisi 3 Kolom Berdampingan */
     .nav-tabs {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -125,7 +123,6 @@
       box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
     }
 
-    /* Grid Layout Responsive */
     .grid-2 {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -138,7 +135,6 @@
       gap: 15px;
     }
 
-    /* Mobile Responsive */
     @media (max-width: 768px) {
       body { padding: 10px; }
       .container { padding: 15px; border-radius: 8px; }
@@ -220,7 +216,6 @@
       text-align: center;
     }
 
-    /* Modal / Pop-Up Styles */
     .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
     .modal-content { background: white; max-width: 450px; margin: 15% auto; padding: 20px; border-radius: 8px; width: 90%; }
     .modal-header { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; color: var(--primary-color); border-bottom: 1px solid #ddd; padding-bottom: 8px; }
@@ -253,7 +248,6 @@
 
 <div class="container">
   
-  <!-- Header Judul Sekolah -->
   <div class="app-header">
     <h1 class="school-title">SMP SWASTA KALOKA</h1>
     <h2 class="app-title">SIM Jurnal KBM & Presensi Siswa</h2>
@@ -261,14 +255,12 @@
 
   <div id="loading">⏳ Memuat data dari server...</div>
 
-  <!-- Menu Navigasi Tab -->
   <div class="nav-tabs">
     <button class="tab-btn active" onclick="openTab('input-jurnal')">📝 Input Jurnal & Presensi</button>
     <button class="tab-btn" onclick="openTab('rekap-siswa')">📊 Rekap Presensi Siswa</button>
     <button class="tab-btn" onclick="openTab('rekap-guru')">👨‍🏫 Rekap Jurnal Guru</button>
   </div>
 
-  <!-- Tab 1: Input Jurnal -->
   <div id="input-jurnal" class="tab-content active">
     <form id="jurnalForm">
       <div class="section-title">1. Informasi Pembelajaran (Jurnal KBM)</div>
@@ -280,15 +272,15 @@
         </div>
         <div class="form-group">
           <label>Guru Pengajar:</label>
-          <select id="guru" required><option value="">-- Pilih Guru --</option></select>
+          <select id="guru" required><option value="">-- Pilih GURU --</option></select>
         </div>
         <div class="form-group">
           <label>Kelas:</label>
-          <select id="kelas" onchange="onKelasOrMapelChange()" required><option value="">-- Pilih Kelas --</option></select>
+          <select id="kelas" onchange="onKelasOrMapelChange()" required><option value="">-- Pilih KELAS --</option></select>
         </div>
         <div class="form-group">
           <label>Mata Pelajaran:</label>
-          <select id="mapel" onchange="onKelasOrMapelChange()" required><option value="">-- Pilih Mapel --</option></select>
+          <select id="mapel" onchange="onKelasOrMapelChange()" required><option value="">-- Pilih MAPEL --</option></select>
         </div>
       </div>
 
@@ -303,13 +295,12 @@
         </div>
       </div>
 
-      <!-- Dropdown Materi Pokok & Sub Topik + Button (+) -->
       <div class="grid-2">
         <div class="form-group">
           <label>Materi Pokok / Bab:</label>
           <div class="input-with-btn">
             <select id="materiPokok" onchange="onMateriPokokChange()" required>
-              <option value="">-- Pilih Mapel Terlebih Dahulu --</option>
+              <option value="">-- Pilih Materi Pokok --</option>
             </select>
             <button type="button" class="btn-add" onclick="bukaModalMateri()" title="Tambah Materi Baru">+</button>
           </div>
@@ -339,10 +330,9 @@
     </form>
   </div>
 
-  <!-- Tab 2: Rekap Siswa -->
   <div id="rekap-siswa" class="tab-content">
     <div class="filter-section">
-      <div class="form-group"><label>Pilih Kelas:</label><select id="rekapKelasSiswa"><option value="">-- Pilih Kelas --</option></select></div>
+      <div class="form-group"><label>Pilih Kelas:</label><select id="rekapKelasSiswa"><option value="">-- Pilih KELAS --</option></select></div>
       <div class="grid-2">
         <div class="form-group"><label>Tanggal Awal:</label><input type="date" id="tglAwalSiswa"></div>
         <div class="form-group"><label>Tanggal Akhir:</label><input type="date" id="tglAkhirSiswa"></div>
@@ -365,10 +355,9 @@
     </div>
   </div>
 
-  <!-- Tab 3: Rekap Guru -->
   <div id="rekap-guru" class="tab-content">
     <div class="filter-section">
-      <div class="form-group"><label>Pilih Guru:</label><select id="rekapGuruSelect"><option value="">-- Pilih Guru --</option></select></div>
+      <div class="form-group"><label>Pilih Guru:</label><select id="rekapGuruSelect"><option value="">-- Pilih GURU --</option></select></div>
       <div class="grid-2">
         <div class="form-group"><label>Tanggal Awal:</label><input type="date" id="tglAwalGuru"></div>
         <div class="form-group"><label>Tanggal Akhir:</label><input type="date" id="tglAkhirGuru"></div>
@@ -393,7 +382,6 @@
 
 </div>
 
-<!-- Pop-Up Modal Tambah Materi Baru -->
 <div id="modalMateri" class="modal">
   <div class="modal-content">
     <div class="modal-header">➕ Tambah Materi / Sub-Topik</div>
@@ -461,7 +449,8 @@
             };
           });
 
-          masterSiswas = res.data.siswas || [];
+          // Mengambil data siswa (dukung dataSiswa dan siswas)
+          masterSiswas = res.data.siswas || res.data.dataSiswa || [];
 
           populateDropdown('guru', res.data.gurus, 'nip', 'nama');
           populateDropdown('rekapGuruSelect', res.data.gurus, 'nip', 'nama');
@@ -529,24 +518,27 @@
       return;
     }
 
-    // PENCOCOKAN FLEKSIBEL UNTUK DATA SISWA
-    const cleanKelasVal = String(kelasVal).toUpperCase().trim();
-    const cleanKelasText = String(kelasText).toUpperCase().trim();
+    // PENCOCOKAN MULTI-Arah
+    const cVal = String(kelasVal).toUpperCase().trim();
+    const cText = String(kelasText).toUpperCase().trim();
 
     const filteredSiswa = masterSiswas.filter(s => {
-      const sKelas = String(s.kelasId).toUpperCase().trim();
-      const sKelasNoSpace = sKelas.replace(/\s+/g, '');
-      const valNoSpace = cleanKelasVal.replace(/\s+/g, '');
-      const textNoSpace = cleanKelasText.replace(/\s+/g, '');
+      if (!s.kelasId) return false;
+      const sK = String(s.kelasId).toUpperCase().trim();
+      
+      const sKClean = sK.replace(/[^A-Z0-9]/g, '');
+      const valClean = cVal.replace(/[^A-Z0-9]/g, '');
+      const textClean = cText.replace(/[^A-Z0-9]/g, '');
 
       return (
-        sKelas === cleanKelasVal ||
-        sKelas === cleanKelasText ||
-        sKelasNoSpace === valNoSpace ||
-        sKelasNoSpace === textNoSpace ||
-        cleanKelasVal.includes(sKelas) ||
-        cleanKelasText.includes(sKelas) ||
-        sKelas.includes(cleanKelasVal)
+        sK === cVal || 
+        sK === cText || 
+        sKClean === valClean || 
+        sKClean === textClean ||
+        valClean.includes(sKClean) ||
+        sKClean.includes(valClean) ||
+        textClean.includes(sKClean) ||
+        sKClean.includes(textClean)
       );
     });
 
@@ -761,18 +753,21 @@
     const kelasId = kelasSelect.value;
     const kelasText = kelasSelect.options[kelasSelect.selectedIndex].text;
 
-    // Filter siswa yang ada di tabel presensi saat ini
-    const cleanKelasVal = String(kelasId).toUpperCase().trim();
-    const cleanKelasText = String(kelasText).toUpperCase().trim();
+    const cVal = String(kelasId).toUpperCase().trim();
+    const cText = String(kelasText).toUpperCase().trim();
 
     const filteredSiswa = masterSiswas.filter(s => {
-      const sKelas = String(s.kelasId).toUpperCase().trim();
+      if (!s.kelasId) return false;
+      const sK = String(s.kelasId).toUpperCase().trim();
+      const sKClean = sK.replace(/[^A-Z0-9]/g, '');
+      const valClean = cVal.replace(/[^A-Z0-9]/g, '');
+      const textClean = cText.replace(/[^A-Z0-9]/g, '');
+
       return (
-        sKelas === cleanKelasVal ||
-        sKelas === cleanKelasText ||
-        sKelas.replace(/\s+/g, '') === cleanKelasVal.replace(/\s+/g, '') ||
-        cleanKelasVal.includes(sKelas) ||
-        sKelas.includes(cleanKelasVal)
+        sK === cVal || sK === cText || 
+        sKClean === valClean || sKClean === textClean ||
+        valClean.includes(sKClean) || sKClean.includes(valClean) ||
+        textClean.includes(sKClean) || sKClean.includes(textClean)
       );
     });
     
